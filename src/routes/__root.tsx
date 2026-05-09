@@ -76,10 +76,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Sportsmanship • Harmony • Innovation • Nurture • Excellence — kompetisi pelajar terbesar se-Sumatera Selatan." },
       { name: "author", content: "SMA Muhammadiyah 1 Palembang" },
       { property: "og:title", content: "SHINE OF SMAMSA 2026" },
-      { property: "og:description", content: "Run Together, Grow Stronger. 10+ cabang lomba, 100% gratis." },
+      { property: "og:description", content: "Sportsmanship • Harmony • Innovation • Nurture • Excellence — kompetisi pelajar terbesar se-Sumatera Selatan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "SHINE OF SMAMSA 2026" },
+      { name: "twitter:description", content: "Sportsmanship • Harmony • Innovation • Nurture • Excellence — kompetisi pelajar terbesar se-Sumatera Selatan." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afccd517-14f9-4319-9886-6d9f17a13c3b/id-preview-a4cbf477--1a9cdab7-e48c-4407-8015-2dbcf7a6a225.lovable.app-1778290473113.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/afccd517-14f9-4319-9886-6d9f17a13c3b/id-preview-a4cbf477--1a9cdab7-e48c-4407-8015-2dbcf7a6a225.lovable.app-1778290473113.png" },
     ],
     links: [
       {
