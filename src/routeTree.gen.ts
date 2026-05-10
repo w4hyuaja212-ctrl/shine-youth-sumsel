@@ -16,6 +16,7 @@ import { Route as JadwalRouteImport } from './routes/jadwal'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as CabangLombaRouteImport } from './routes/cabang-lomba'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PanitiaSetupRouteImport } from './routes/panitia.setup'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -52,6 +53,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanitiaSetupRoute = PanitiaSetupRouteImport.update({
+  id: '/panitia/setup',
+  path: '/panitia/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/panitia/setup': typeof PanitiaSetupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/panitia/setup': typeof PanitiaSetupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
   '/signup': typeof SignupRoute
+  '/panitia/setup': typeof PanitiaSetupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/login'
     | '/signup'
+    | '/panitia/setup'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/login'
     | '/signup'
+    | '/panitia/setup'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/kontak'
     | '/login'
     | '/signup'
+    | '/panitia/setup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   KontakRoute: typeof KontakRoute
   LoginRoute: typeof LoginRoute
   SignupRoute: typeof SignupRoute
+  PanitiaSetupRoute: typeof PanitiaSetupRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -172,6 +185,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panitia/setup': {
+      id: '/panitia/setup'
+      path: '/panitia/setup'
+      fullPath: '/panitia/setup'
+      preLoaderRoute: typeof PanitiaSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   KontakRoute: KontakRoute,
   LoginRoute: LoginRoute,
   SignupRoute: SignupRoute,
+  PanitiaSetupRoute: PanitiaSetupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
