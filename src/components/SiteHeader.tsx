@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Trophy } from "lucide-react";
+import { Menu, X, Trophy, LayoutDashboard } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const nav = [
   { to: "/", label: "Beranda" },
@@ -13,6 +14,8 @@ const nav = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, isPanitia } = useAuth();
+  const dashHref = isPanitia ? "/panitia" : "/dashboard";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -54,12 +57,27 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center gap-2">
+          {user ? (
+            <Link
+              to={dashHref}
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-accent"
+            >
+              <LayoutDashboard className="h-4 w-4" /> Dashboard
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-foreground hover:bg-accent"
+            >
+              Login Sekolah
+            </Link>
+          )}
           <Link
-            to="/cabang-lomba"
+            to={user ? dashHref : "/signup"}
             className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-5 py-2.5 text-sm font-bold text-gold-foreground shadow-gold hover:scale-[1.03] transition-transform"
           >
-            Daftar Sekarang
+            {user ? "Buka Dashboard" : "Daftar Sekarang"}
           </Link>
         </div>
 
@@ -88,11 +106,11 @@ export function SiteHeader() {
               </Link>
             ))}
             <Link
-              to="/cabang-lomba"
+              to={user ? dashHref : "/login"}
               onClick={() => setOpen(false)}
               className="mt-3 block rounded-full bg-gradient-gold px-5 py-3 text-center text-sm font-bold text-gold-foreground shadow-gold"
             >
-              Daftar Sekarang
+              {user ? "Buka Dashboard" : "Login Sekolah"}
             </Link>
           </div>
         </div>

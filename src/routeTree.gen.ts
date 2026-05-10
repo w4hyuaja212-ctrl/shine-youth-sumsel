@@ -9,12 +9,31 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as JadwalRouteImport } from './routes/jadwal'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as CabangLombaRouteImport } from './routes/cabang-lomba'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PanitiaIndexRouteImport } from './routes/panitia.index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as PanitiaSetupRouteImport } from './routes/panitia.setup'
+import { Route as DashboardProfilRouteImport } from './routes/dashboard.profil'
+import { Route as DashboardPendaftaranIndexRouteImport } from './routes/dashboard.pendaftaran.index'
+import { Route as DashboardPendaftaranBaruRouteImport } from './routes/dashboard.pendaftaran.baru'
+import { Route as DashboardPendaftaranIdRouteImport } from './routes/dashboard.pendaftaran.$id'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KontakRoute = KontakRouteImport.update({
   id: '/kontak',
   path: '/kontak',
@@ -40,6 +59,43 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanitiaIndexRoute = PanitiaIndexRouteImport.update({
+  id: '/panitia/',
+  path: '/panitia/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaSetupRoute = PanitiaSetupRouteImport.update({
+  id: '/panitia/setup',
+  path: '/panitia/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardProfilRoute = DashboardProfilRouteImport.update({
+  id: '/dashboard/profil',
+  path: '/dashboard/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardPendaftaranIndexRoute =
+  DashboardPendaftaranIndexRouteImport.update({
+    id: '/dashboard/pendaftaran/',
+    path: '/dashboard/pendaftaran/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardPendaftaranBaruRoute =
+  DashboardPendaftaranBaruRouteImport.update({
+    id: '/dashboard/pendaftaran/baru',
+    path: '/dashboard/pendaftaran/baru',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardPendaftaranIdRoute = DashboardPendaftaranIdRouteImport.update({
+  id: '/dashboard/pendaftaran/$id',
+  path: '/dashboard/pendaftaran/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +103,15 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/dashboard/profil': typeof DashboardProfilRoute
+  '/panitia/setup': typeof PanitiaSetupRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/panitia/': typeof PanitiaIndexRoute
+  '/dashboard/pendaftaran/$id': typeof DashboardPendaftaranIdRoute
+  '/dashboard/pendaftaran/baru': typeof DashboardPendaftaranBaruRoute
+  '/dashboard/pendaftaran/': typeof DashboardPendaftaranIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +119,15 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/dashboard/profil': typeof DashboardProfilRoute
+  '/panitia/setup': typeof PanitiaSetupRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/panitia': typeof PanitiaIndexRoute
+  '/dashboard/pendaftaran/$id': typeof DashboardPendaftaranIdRoute
+  '/dashboard/pendaftaran/baru': typeof DashboardPendaftaranBaruRoute
+  '/dashboard/pendaftaran': typeof DashboardPendaftaranIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +136,65 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
+  '/dashboard/profil': typeof DashboardProfilRoute
+  '/panitia/setup': typeof PanitiaSetupRoute
+  '/dashboard/': typeof DashboardIndexRoute
+  '/panitia/': typeof PanitiaIndexRoute
+  '/dashboard/pendaftaran/$id': typeof DashboardPendaftaranIdRoute
+  '/dashboard/pendaftaran/baru': typeof DashboardPendaftaranBaruRoute
+  '/dashboard/pendaftaran/': typeof DashboardPendaftaranIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cabang-lomba' | '/faq' | '/jadwal' | '/kontak'
+  fullPaths:
+    | '/'
+    | '/cabang-lomba'
+    | '/faq'
+    | '/jadwal'
+    | '/kontak'
+    | '/login'
+    | '/signup'
+    | '/dashboard/profil'
+    | '/panitia/setup'
+    | '/dashboard/'
+    | '/panitia/'
+    | '/dashboard/pendaftaran/$id'
+    | '/dashboard/pendaftaran/baru'
+    | '/dashboard/pendaftaran/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cabang-lomba' | '/faq' | '/jadwal' | '/kontak'
-  id: '__root__' | '/' | '/cabang-lomba' | '/faq' | '/jadwal' | '/kontak'
+  to:
+    | '/'
+    | '/cabang-lomba'
+    | '/faq'
+    | '/jadwal'
+    | '/kontak'
+    | '/login'
+    | '/signup'
+    | '/dashboard/profil'
+    | '/panitia/setup'
+    | '/dashboard'
+    | '/panitia'
+    | '/dashboard/pendaftaran/$id'
+    | '/dashboard/pendaftaran/baru'
+    | '/dashboard/pendaftaran'
+  id:
+    | '__root__'
+    | '/'
+    | '/cabang-lomba'
+    | '/faq'
+    | '/jadwal'
+    | '/kontak'
+    | '/login'
+    | '/signup'
+    | '/dashboard/profil'
+    | '/panitia/setup'
+    | '/dashboard/'
+    | '/panitia/'
+    | '/dashboard/pendaftaran/$id'
+    | '/dashboard/pendaftaran/baru'
+    | '/dashboard/pendaftaran/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +203,33 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   JadwalRoute: typeof JadwalRoute
   KontakRoute: typeof KontakRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
+  DashboardProfilRoute: typeof DashboardProfilRoute
+  PanitiaSetupRoute: typeof PanitiaSetupRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  PanitiaIndexRoute: typeof PanitiaIndexRoute
+  DashboardPendaftaranIdRoute: typeof DashboardPendaftaranIdRoute
+  DashboardPendaftaranBaruRoute: typeof DashboardPendaftaranBaruRoute
+  DashboardPendaftaranIndexRoute: typeof DashboardPendaftaranIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/kontak': {
       id: '/kontak'
       path: '/kontak'
@@ -116,6 +265,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panitia/': {
+      id: '/panitia/'
+      path: '/panitia'
+      fullPath: '/panitia/'
+      preLoaderRoute: typeof PanitiaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/setup': {
+      id: '/panitia/setup'
+      path: '/panitia/setup'
+      fullPath: '/panitia/setup'
+      preLoaderRoute: typeof PanitiaSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/profil': {
+      id: '/dashboard/profil'
+      path: '/dashboard/profil'
+      fullPath: '/dashboard/profil'
+      preLoaderRoute: typeof DashboardProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/pendaftaran/': {
+      id: '/dashboard/pendaftaran/'
+      path: '/dashboard/pendaftaran'
+      fullPath: '/dashboard/pendaftaran/'
+      preLoaderRoute: typeof DashboardPendaftaranIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/pendaftaran/baru': {
+      id: '/dashboard/pendaftaran/baru'
+      path: '/dashboard/pendaftaran/baru'
+      fullPath: '/dashboard/pendaftaran/baru'
+      preLoaderRoute: typeof DashboardPendaftaranBaruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/pendaftaran/$id': {
+      id: '/dashboard/pendaftaran/$id'
+      path: '/dashboard/pendaftaran/$id'
+      fullPath: '/dashboard/pendaftaran/$id'
+      preLoaderRoute: typeof DashboardPendaftaranIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +323,15 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   JadwalRoute: JadwalRoute,
   KontakRoute: KontakRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
+  DashboardProfilRoute: DashboardProfilRoute,
+  PanitiaSetupRoute: PanitiaSetupRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  PanitiaIndexRoute: PanitiaIndexRoute,
+  DashboardPendaftaranIdRoute: DashboardPendaftaranIdRoute,
+  DashboardPendaftaranBaruRoute: DashboardPendaftaranBaruRoute,
+  DashboardPendaftaranIndexRoute: DashboardPendaftaranIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
