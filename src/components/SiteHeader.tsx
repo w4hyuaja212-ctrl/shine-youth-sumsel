@@ -106,11 +106,11 @@ export function SiteHeader() {
               </Link>
             ))}
             <Link
-              to="/cabang-lomba"
+              to={user ? dashHref : "/login"}
               onClick={() => setOpen(false)}
               className="mt-3 block rounded-full bg-gradient-gold px-5 py-3 text-center text-sm font-bold text-gold-foreground shadow-gold"
             >
-              Daftar Sekarang
+              {user ? "Buka Dashboard" : "Login Sekolah"}
             </Link>
           </div>
         </div>
