@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as JadwalRouteImport } from './routes/jadwal'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as CabangLombaRouteImport } from './routes/cabang-lomba'
 import { Route as IndexRouteImport } from './routes/index'
 
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KontakRoute = KontakRouteImport.update({
   id: '/kontak',
   path: '/kontak',
@@ -47,6 +59,8 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +68,8 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +78,37 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
+  '/login': typeof LoginRoute
+  '/signup': typeof SignupRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/cabang-lomba' | '/faq' | '/jadwal' | '/kontak'
+  fullPaths:
+    | '/'
+    | '/cabang-lomba'
+    | '/faq'
+    | '/jadwal'
+    | '/kontak'
+    | '/login'
+    | '/signup'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cabang-lomba' | '/faq' | '/jadwal' | '/kontak'
-  id: '__root__' | '/' | '/cabang-lomba' | '/faq' | '/jadwal' | '/kontak'
+  to:
+    | '/'
+    | '/cabang-lomba'
+    | '/faq'
+    | '/jadwal'
+    | '/kontak'
+    | '/login'
+    | '/signup'
+  id:
+    | '__root__'
+    | '/'
+    | '/cabang-lomba'
+    | '/faq'
+    | '/jadwal'
+    | '/kontak'
+    | '/login'
+    | '/signup'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,10 +117,26 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   JadwalRoute: typeof JadwalRoute
   KontakRoute: typeof KontakRoute
+  LoginRoute: typeof LoginRoute
+  SignupRoute: typeof SignupRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/kontak': {
       id: '/kontak'
       path: '/kontak'
@@ -125,7 +181,19 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   JadwalRoute: JadwalRoute,
   KontakRoute: KontakRoute,
+  LoginRoute: LoginRoute,
+  SignupRoute: SignupRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
