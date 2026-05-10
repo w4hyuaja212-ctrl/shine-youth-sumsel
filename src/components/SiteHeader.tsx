@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Menu, X, Trophy } from "lucide-react";
+import { Menu, X, Trophy, LayoutDashboard } from "lucide-react";
+import { useAuth } from "@/lib/auth-context";
 
 const nav = [
   { to: "/", label: "Beranda" },
@@ -13,6 +14,8 @@ const nav = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { user, isPanitia } = useAuth();
+  const dashHref = isPanitia ? "/panitia" : "/dashboard";
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
