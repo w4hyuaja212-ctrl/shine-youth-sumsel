@@ -14,16 +14,279 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          alamat: string | null
+          created_at: string
+          email: string | null
+          id: string
+          jenjang: string | null
+          nama_pic: string | null
+          nama_sekolah: string | null
+          no_wa: string | null
+          npsn: string | null
+          updated_at: string
+        }
+        Insert: {
+          alamat?: string | null
+          created_at?: string
+          email?: string | null
+          id: string
+          jenjang?: string | null
+          nama_pic?: string | null
+          nama_sekolah?: string | null
+          no_wa?: string | null
+          npsn?: string | null
+          updated_at?: string
+        }
+        Update: {
+          alamat?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          jenjang?: string | null
+          nama_pic?: string | null
+          nama_sekolah?: string | null
+          no_wa?: string | null
+          npsn?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      registration_files: {
+        Row: {
+          file_name: string
+          file_path: string
+          id: string
+          jenis: string
+          registration_id: string
+          size_bytes: number | null
+          uploaded_at: string
+        }
+        Insert: {
+          file_name: string
+          file_path: string
+          id?: string
+          jenis: string
+          registration_id: string
+          size_bytes?: number | null
+          uploaded_at?: string
+        }
+        Update: {
+          file_name?: string
+          file_path?: string
+          id?: string
+          jenis?: string
+          registration_id?: string
+          size_bytes?: number | null
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_files_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registration_members: {
+        Row: {
+          created_at: string
+          id: string
+          jenis_kelamin: string | null
+          kelas: string | null
+          nama: string
+          nisn: string | null
+          no_wa: string | null
+          peran: string | null
+          registration_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          jenis_kelamin?: string | null
+          kelas?: string | null
+          nama: string
+          nisn?: string | null
+          no_wa?: string | null
+          peran?: string | null
+          registration_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          jenis_kelamin?: string | null
+          kelas?: string | null
+          nama?: string
+          nisn?: string | null
+          no_wa?: string | null
+          peran?: string | null
+          registration_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_members_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registration_status_log: {
+        Row: {
+          catatan: string | null
+          changed_at: string
+          changed_by: string | null
+          from_status: Database["public"]["Enums"]["registration_status"] | null
+          id: string
+          registration_id: string
+          to_status: Database["public"]["Enums"]["registration_status"]
+        }
+        Insert: {
+          catatan?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          from_status?:
+            | Database["public"]["Enums"]["registration_status"]
+            | null
+          id?: string
+          registration_id: string
+          to_status: Database["public"]["Enums"]["registration_status"]
+        }
+        Update: {
+          catatan?: string | null
+          changed_at?: string
+          changed_by?: string | null
+          from_status?:
+            | Database["public"]["Enums"]["registration_status"]
+            | null
+          id?: string
+          registration_id?: string
+          to_status?: Database["public"]["Enums"]["registration_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_status_log_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      registrations: {
+        Row: {
+          catatan_panitia: string | null
+          created_at: string
+          id: string
+          kategori: string | null
+          lomba_name: string
+          lomba_slug: string
+          nama_tim: string | null
+          pic_nama: string | null
+          pic_wa: string | null
+          school_id: string
+          status: Database["public"]["Enums"]["registration_status"]
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          catatan_panitia?: string | null
+          created_at?: string
+          id?: string
+          kategori?: string | null
+          lomba_name: string
+          lomba_slug: string
+          nama_tim?: string | null
+          pic_nama?: string | null
+          pic_wa?: string | null
+          school_id: string
+          status?: Database["public"]["Enums"]["registration_status"]
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          catatan_panitia?: string | null
+          created_at?: string
+          id?: string
+          kategori?: string | null
+          lomba_name?: string
+          lomba_slug?: string
+          nama_tim?: string | null
+          pic_nama?: string | null
+          pic_wa?: string | null
+          school_id?: string
+          status?: Database["public"]["Enums"]["registration_status"]
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          akses_lomba: string | null
+          created_at: string
+          id: string
+          label: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          akses_lomba?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          akses_lomba?: string | null
+          created_at?: string
+          id?: string
+          label?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_access_lomba: {
+        Args: { _lomba_name: string; _user_id: string }
+        Returns: boolean
+      }
+      can_modify_lomba: {
+        Args: { _lomba_name: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_panitia: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "school"
+        | "panitia_superadmin"
+        | "panitia_pj"
+        | "panitia_viewer"
+      registration_status: "draft" | "submitted" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +413,14 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "school",
+        "panitia_superadmin",
+        "panitia_pj",
+        "panitia_viewer",
+      ],
+      registration_status: ["draft", "submitted", "verified", "rejected"],
+    },
   },
 } as const
