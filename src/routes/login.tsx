@@ -61,7 +61,7 @@ function LoginPage() {
                 <TabsContent value="sekolah" className="m-0 space-y-4">
                   <div>
                     <Label htmlFor="npsn">NPSN Sekolah</Label>
-                    <Input id="npsn" inputMode="numeric" maxLength={10} required value={npsn} onChange={(e) => setNpsn(e.target.value)} placeholder="10 digit NPSN" />
+                    <Input id="npsn" inputMode="numeric" maxLength={8} required value={npsn} onChange={(e) => setNpsn(e.target.value.replace(/\D/g, ""))} placeholder="8 digit NPSN" />
                   </div>
                   <div>
                     <Label htmlFor="pwSch">Password</Label>
