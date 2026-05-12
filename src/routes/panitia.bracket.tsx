@@ -29,7 +29,7 @@ const emptyBracket = (size: 4 | 8 | 16): BracketData => {
   let i = 0;
   while (n >= 2) {
     rounds.push({
-      name: i === 0 ? `Babak ${size} Besar` : i === 1 && size === 16 ? "Perempat Final" : n === 2 ? "Final" : n === 4 ? "Semifinal" : `Babak ${n}`,
+      name: i === 0 ? `Babak ${size} Besar` : i === 1 && size === 16 ? "Perempat Final" : (n as number) === 2 ? "Final" : (n as number) === 4 ? "Semifinal" : `Babak ${n}`,
       matches: Array.from({ length: n / 2 }, () => ({ a: "", b: "", scoreA: "", scoreB: "", winner: "" })),
     });
     n = n / 2;
@@ -189,7 +189,7 @@ function BracketEditor({ data, setData }: { data: BracketData; setData: (d: Brac
   );
 }
 
-function SlotRow({ value, score, winner, disabled, onName, onScore }: any) {
+function SlotRow({ value, score, winner, disabled, onName, onScore }: { value: string; score: number | ""; winner: boolean; disabled: boolean; onName: (v: string) => void; onScore: (v: number | "") => void }) {
   return (
     <div className={`flex items-center gap-1 rounded-md border px-1 ${winner ? "border-emerald-500 bg-emerald-500/5" : ""}`}>
       <Input className="h-7 border-0 px-1 text-xs" value={value} disabled={disabled} placeholder="Nama tim" onChange={(e) => onName(e.target.value)} />
