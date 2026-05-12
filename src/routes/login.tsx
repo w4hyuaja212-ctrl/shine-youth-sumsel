@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/PageShell";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { npsnEmail, panitiaEmail, useAuth } from "@/lib/auth-context";
+import { panitiaEmail, useAuth } from "@/lib/auth-context";
+import { loginByNPSN } from "@/lib/auth-school.functions";
 import { toast } from "sonner";
 import { GraduationCap, ShieldCheck, Loader2 } from "lucide-react";
 
@@ -19,24 +21,40 @@ export const Route = createFileRoute("/login")({
 function LoginPage() {
   const nav = useNavigate();
   const { refreshRoles } = useAuth();
+  const npsnLogin = useServerFn(loginByNPSN);
   const [tab, setTab] = useState<"sekolah" | "panitia">("sekolah");
   const [npsn, setNpsn] = useState("");
-  const [pwSch, setPwSch] = useState("");
   const [user, setUser] = useState("");
   const [pwPan, setPwPan] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const submit = async (e: React.FormEvent) => {
+  const submitSchool = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{8}$/.test(npsn)) { toast.error("NPSN harus 8 digit"); return; }
+    setLoading(true);
+    try {
+      const r = await npsnLogin({ data: { npsn } });
+      const { error } = await supabase.auth.signInWithPassword({ email: r.email, password: r.tempPassword });
+      if (error) throw error;
+      await refreshRoles();
+      toast.success(`Selamat datang, ${r.namaSekolah}!`);
+      nav({ to: "/dashboard" });
+    } catch (err) {
+      toast.error((err as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const submitPanitia = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const email = tab === "sekolah" ? npsnEmail(npsn) : panitiaEmail(user);
-    const password = tab === "sekolah" ? pwSch : pwPan;
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: panitiaEmail(user), password: pwPan });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     await refreshRoles();
     toast.success("Berhasil masuk!");
-    nav({ to: tab === "sekolah" ? "/dashboard" : "/panitia" });
+    nav({ to: "/panitia" });
   };
 
   return (
@@ -57,22 +75,24 @@ function LoginPage() {
                 <TabsTrigger value="panitia">Panitia</TabsTrigger>
               </TabsList>
 
-              <form onSubmit={submit} className="mt-6 space-y-4">
-                <TabsContent value="sekolah" className="m-0 space-y-4">
+              <TabsContent value="sekolah" className="m-0">
+                <form onSubmit={submitSchool} className="mt-6 space-y-4">
                   <div>
                     <Label htmlFor="npsn">NPSN Sekolah</Label>
-                    <Input id="npsn" inputMode="numeric" maxLength={8} required value={npsn} onChange={(e) => setNpsn(e.target.value.replace(/\D/g, ""))} placeholder="8 digit NPSN" />
+                    <Input id="npsn" inputMode="numeric" maxLength={8} required value={npsn}
+                      onChange={(e) => setNpsn(e.target.value.replace(/\D/g, ""))} placeholder="8 digit NPSN" />
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Cukup masukkan NPSN. Akun sekolah akan terbuat & diverifikasi otomatis ke Data Pokok Pendidikan.
+                    </p>
                   </div>
-                  <div>
-                    <Label htmlFor="pwSch">Password</Label>
-                    <Input id="pwSch" type="password" required value={pwSch} onChange={(e) => setPwSch(e.target.value)} />
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Belum punya akun? <Link to="/signup" className="font-semibold text-primary underline">Daftarkan sekolah</Link>
-                  </p>
-                </TabsContent>
+                  <Button type="submit" disabled={loading} className="w-full">
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />} Masuk Sekolah
+                  </Button>
+                </form>
+              </TabsContent>
 
-                <TabsContent value="panitia" className="m-0 space-y-4">
+              <TabsContent value="panitia" className="m-0">
+                <form onSubmit={submitPanitia} className="mt-6 space-y-4">
                   <div>
                     <Label htmlFor="user">Username Panitia</Label>
                     <Input id="user" required value={user} onChange={(e) => setUser(e.target.value)} placeholder="mis. pj_futsal" />
@@ -82,15 +102,13 @@ function LoginPage() {
                     <Input id="pwPan" type="password" required value={pwPan} onChange={(e) => setPwPan(e.target.value)} />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Akun panitia di-seed otomatis. Default password: <code className="rounded bg-muted px-1">smamsa2026</code>.
-                    Jika belum bisa login, <Link to="/panitia/setup" className="font-semibold text-primary underline">jalankan setup awal</Link>.
+                    Default password panitia: <code className="rounded bg-muted px-1">smamsa2026</code>.
                   </p>
-                </TabsContent>
-
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading && <Loader2 className="h-4 w-4 animate-spin" />} Masuk
-                </Button>
-              </form>
+                  <Button type="submit" disabled={loading} className="w-full">
+                    {loading && <Loader2 className="h-4 w-4 animate-spin" />} Masuk Panitia
+                  </Button>
+                </form>
+              </TabsContent>
             </Tabs>
           </CardContent>
         </Card>

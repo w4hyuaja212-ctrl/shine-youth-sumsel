@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as JadwalRouteImport } from './routes/jadwal'
@@ -24,11 +23,6 @@ import { Route as DashboardPendaftaranIndexRouteImport } from './routes/dashboar
 import { Route as DashboardPendaftaranBaruRouteImport } from './routes/dashboard.pendaftaran.baru'
 import { Route as DashboardPendaftaranIdRouteImport } from './routes/dashboard.pendaftaran.$id'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -104,7 +98,6 @@ export interface FileRoutesByFullPath {
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/dashboard/profil': typeof DashboardProfilRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -120,7 +113,6 @@ export interface FileRoutesByTo {
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/dashboard/profil': typeof DashboardProfilRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -137,7 +129,6 @@ export interface FileRoutesById {
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
   '/dashboard/profil': typeof DashboardProfilRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -155,7 +146,6 @@ export interface FileRouteTypes {
     | '/jadwal'
     | '/kontak'
     | '/login'
-    | '/signup'
     | '/dashboard/profil'
     | '/panitia/setup'
     | '/dashboard/'
@@ -171,7 +161,6 @@ export interface FileRouteTypes {
     | '/jadwal'
     | '/kontak'
     | '/login'
-    | '/signup'
     | '/dashboard/profil'
     | '/panitia/setup'
     | '/dashboard'
@@ -187,7 +176,6 @@ export interface FileRouteTypes {
     | '/jadwal'
     | '/kontak'
     | '/login'
-    | '/signup'
     | '/dashboard/profil'
     | '/panitia/setup'
     | '/dashboard/'
@@ -204,7 +192,6 @@ export interface RootRouteChildren {
   JadwalRoute: typeof JadwalRoute
   KontakRoute: typeof KontakRoute
   LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
   DashboardProfilRoute: typeof DashboardProfilRoute
   PanitiaSetupRoute: typeof PanitiaSetupRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
@@ -216,13 +203,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -324,7 +304,6 @@ const rootRouteChildren: RootRouteChildren = {
   JadwalRoute: JadwalRoute,
   KontakRoute: KontakRoute,
   LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
   DashboardProfilRoute: DashboardProfilRoute,
   PanitiaSetupRoute: PanitiaSetupRoute,
   DashboardIndexRoute: DashboardIndexRoute,
@@ -336,3 +315,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
