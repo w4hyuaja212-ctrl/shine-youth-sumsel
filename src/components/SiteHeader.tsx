@@ -7,6 +7,8 @@ const nav = [
   { to: "/", label: "Beranda" },
   { to: "/cabang-lomba", label: "Cabang Lomba" },
   { to: "/jadwal", label: "Jadwal" },
+  { to: "/bagan", label: "Bagan & Poin" },
+  { to: "/galeri", label: "Galeri" },
   { to: "/faq", label: "FAQ" },
   { to: "/kontak", label: "Kontak" },
 ] as const;
@@ -74,10 +76,10 @@ export function SiteHeader() {
             </Link>
           )}
           <Link
-            to={user ? dashHref : "/signup"}
+            to={user ? dashHref : "/login"}
             className="inline-flex items-center gap-2 rounded-full bg-gradient-gold px-5 py-2.5 text-sm font-bold text-gold-foreground shadow-gold hover:scale-[1.03] transition-transform"
           >
-            {user ? "Buka Dashboard" : "Daftar Sekarang"}
+            {user ? "Buka Dashboard" : "Masuk Sekolah"}
           </Link>
         </div>
 
