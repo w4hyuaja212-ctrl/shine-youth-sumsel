@@ -3,7 +3,7 @@ import { ReactNode, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { LayoutDashboard, FileText, User, LogOut, ListPlus, ShieldCheck, Loader2 } from "lucide-react";
+import { LayoutDashboard, FileText, User, LogOut, ListPlus, ShieldCheck, Loader2, BarChart3, Search, Image as ImageIcon, Trophy, FileBadge, IdCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
@@ -17,6 +17,12 @@ const SCHOOL_NAV: Item[] = [
 
 const PANITIA_NAV: Item[] = [
   { to: "/panitia", label: "Verifikasi Pendaftaran", icon: ShieldCheck },
+  { to: "/panitia/statistik", label: "Statistik", icon: BarChart3 },
+  { to: "/panitia/bracket", label: "Bracket & Poin", icon: Trophy },
+  { to: "/panitia/sertifikat", label: "Cetak Sertifikat", icon: FileBadge },
+  { to: "/panitia/idcard", label: "Cetak ID Card", icon: IdCard },
+  { to: "/panitia/galeri", label: "Galeri Kegiatan", icon: ImageIcon },
+  { to: "/panitia/npsn-tools", label: "NPSN Tools", icon: Search },
 ];
 
 export function DashboardLayout({ mode, children }: { mode: "school" | "panitia"; children: ReactNode }) {
