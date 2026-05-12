@@ -21,7 +21,9 @@ import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as BaganIndexRouteImport } from './routes/bagan.index'
 import { Route as PanitiaStatistikRouteImport } from './routes/panitia.statistik'
 import { Route as PanitiaSetupRouteImport } from './routes/panitia.setup'
+import { Route as PanitiaSertifikatRouteImport } from './routes/panitia.sertifikat'
 import { Route as PanitiaNpsnToolsRouteImport } from './routes/panitia.npsn-tools'
+import { Route as PanitiaIdcardRouteImport } from './routes/panitia.idcard'
 import { Route as PanitiaGaleriRouteImport } from './routes/panitia.galeri'
 import { Route as PanitiaBracketRouteImport } from './routes/panitia.bracket'
 import { Route as DashboardProfilRouteImport } from './routes/dashboard.profil'
@@ -90,9 +92,19 @@ const PanitiaSetupRoute = PanitiaSetupRouteImport.update({
   path: '/panitia/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanitiaSertifikatRoute = PanitiaSertifikatRouteImport.update({
+  id: '/panitia/sertifikat',
+  path: '/panitia/sertifikat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PanitiaNpsnToolsRoute = PanitiaNpsnToolsRouteImport.update({
   id: '/panitia/npsn-tools',
   path: '/panitia/npsn-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaIdcardRoute = PanitiaIdcardRouteImport.update({
+  id: '/panitia/idcard',
+  path: '/panitia/idcard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PanitiaGaleriRoute = PanitiaGaleriRouteImport.update({
@@ -145,7 +157,9 @@ export interface FileRoutesByFullPath {
   '/dashboard/profil': typeof DashboardProfilRoute
   '/panitia/bracket': typeof PanitiaBracketRoute
   '/panitia/galeri': typeof PanitiaGaleriRoute
+  '/panitia/idcard': typeof PanitiaIdcardRoute
   '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/panitia/statistik': typeof PanitiaStatistikRoute
   '/bagan/': typeof BaganIndexRoute
@@ -167,7 +181,9 @@ export interface FileRoutesByTo {
   '/dashboard/profil': typeof DashboardProfilRoute
   '/panitia/bracket': typeof PanitiaBracketRoute
   '/panitia/galeri': typeof PanitiaGaleriRoute
+  '/panitia/idcard': typeof PanitiaIdcardRoute
   '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/panitia/statistik': typeof PanitiaStatistikRoute
   '/bagan': typeof BaganIndexRoute
@@ -190,7 +206,9 @@ export interface FileRoutesById {
   '/dashboard/profil': typeof DashboardProfilRoute
   '/panitia/bracket': typeof PanitiaBracketRoute
   '/panitia/galeri': typeof PanitiaGaleriRoute
+  '/panitia/idcard': typeof PanitiaIdcardRoute
   '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/panitia/statistik': typeof PanitiaStatistikRoute
   '/bagan/': typeof BaganIndexRoute
@@ -214,7 +232,9 @@ export interface FileRouteTypes {
     | '/dashboard/profil'
     | '/panitia/bracket'
     | '/panitia/galeri'
+    | '/panitia/idcard'
     | '/panitia/npsn-tools'
+    | '/panitia/sertifikat'
     | '/panitia/setup'
     | '/panitia/statistik'
     | '/bagan/'
@@ -236,7 +256,9 @@ export interface FileRouteTypes {
     | '/dashboard/profil'
     | '/panitia/bracket'
     | '/panitia/galeri'
+    | '/panitia/idcard'
     | '/panitia/npsn-tools'
+    | '/panitia/sertifikat'
     | '/panitia/setup'
     | '/panitia/statistik'
     | '/bagan'
@@ -258,7 +280,9 @@ export interface FileRouteTypes {
     | '/dashboard/profil'
     | '/panitia/bracket'
     | '/panitia/galeri'
+    | '/panitia/idcard'
     | '/panitia/npsn-tools'
+    | '/panitia/sertifikat'
     | '/panitia/setup'
     | '/panitia/statistik'
     | '/bagan/'
@@ -281,7 +305,9 @@ export interface RootRouteChildren {
   DashboardProfilRoute: typeof DashboardProfilRoute
   PanitiaBracketRoute: typeof PanitiaBracketRoute
   PanitiaGaleriRoute: typeof PanitiaGaleriRoute
+  PanitiaIdcardRoute: typeof PanitiaIdcardRoute
   PanitiaNpsnToolsRoute: typeof PanitiaNpsnToolsRoute
+  PanitiaSertifikatRoute: typeof PanitiaSertifikatRoute
   PanitiaSetupRoute: typeof PanitiaSetupRoute
   PanitiaStatistikRoute: typeof PanitiaStatistikRoute
   BaganIndexRoute: typeof BaganIndexRoute
@@ -378,11 +404,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanitiaSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panitia/sertifikat': {
+      id: '/panitia/sertifikat'
+      path: '/panitia/sertifikat'
+      fullPath: '/panitia/sertifikat'
+      preLoaderRoute: typeof PanitiaSertifikatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/panitia/npsn-tools': {
       id: '/panitia/npsn-tools'
       path: '/panitia/npsn-tools'
       fullPath: '/panitia/npsn-tools'
       preLoaderRoute: typeof PanitiaNpsnToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/idcard': {
+      id: '/panitia/idcard'
+      path: '/panitia/idcard'
+      fullPath: '/panitia/idcard'
+      preLoaderRoute: typeof PanitiaIdcardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/panitia/galeri': {
@@ -449,7 +489,9 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardProfilRoute: DashboardProfilRoute,
   PanitiaBracketRoute: PanitiaBracketRoute,
   PanitiaGaleriRoute: PanitiaGaleriRoute,
+  PanitiaIdcardRoute: PanitiaIdcardRoute,
   PanitiaNpsnToolsRoute: PanitiaNpsnToolsRoute,
+  PanitiaSertifikatRoute: PanitiaSertifikatRoute,
   PanitiaSetupRoute: PanitiaSetupRoute,
   PanitiaStatistikRoute: PanitiaStatistikRoute,
   BaganIndexRoute: BaganIndexRoute,
@@ -462,3 +504,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
