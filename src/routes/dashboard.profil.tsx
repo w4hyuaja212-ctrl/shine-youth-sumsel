@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard/profil")({
 function ProfilPage() {
   const { user } = useAuth();
   const [p, setP] = useState<any>(null);
-  const [pw, setPw] = useState({ now: "", next: "", confirm: "" });
+  
 
   useEffect(() => {
     if (!user) return;
