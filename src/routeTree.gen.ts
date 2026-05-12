@@ -9,26 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SignupRouteImport } from './routes/signup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as KontakRouteImport } from './routes/kontak'
 import { Route as JadwalRouteImport } from './routes/jadwal'
+import { Route as GaleriRouteImport } from './routes/galeri'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as CabangLombaRouteImport } from './routes/cabang-lomba'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PanitiaIndexRouteImport } from './routes/panitia.index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as BaganIndexRouteImport } from './routes/bagan.index'
+import { Route as PanitiaStatistikRouteImport } from './routes/panitia.statistik'
 import { Route as PanitiaSetupRouteImport } from './routes/panitia.setup'
+import { Route as PanitiaSertifikatRouteImport } from './routes/panitia.sertifikat'
+import { Route as PanitiaNpsnToolsRouteImport } from './routes/panitia.npsn-tools'
+import { Route as PanitiaIdcardRouteImport } from './routes/panitia.idcard'
+import { Route as PanitiaGaleriRouteImport } from './routes/panitia.galeri'
+import { Route as PanitiaBracketRouteImport } from './routes/panitia.bracket'
 import { Route as DashboardProfilRouteImport } from './routes/dashboard.profil'
+import { Route as BaganSlugRouteImport } from './routes/bagan.$slug'
 import { Route as DashboardPendaftaranIndexRouteImport } from './routes/dashboard.pendaftaran.index'
 import { Route as DashboardPendaftaranBaruRouteImport } from './routes/dashboard.pendaftaran.baru'
 import { Route as DashboardPendaftaranIdRouteImport } from './routes/dashboard.pendaftaran.$id'
 
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -42,6 +45,11 @@ const KontakRoute = KontakRouteImport.update({
 const JadwalRoute = JadwalRouteImport.update({
   id: '/jadwal',
   path: '/jadwal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GaleriRoute = GaleriRouteImport.update({
+  id: '/galeri',
+  path: '/galeri',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FaqRoute = FaqRouteImport.update({
@@ -69,14 +77,54 @@ const DashboardIndexRoute = DashboardIndexRouteImport.update({
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BaganIndexRoute = BaganIndexRouteImport.update({
+  id: '/bagan/',
+  path: '/bagan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaStatistikRoute = PanitiaStatistikRouteImport.update({
+  id: '/panitia/statistik',
+  path: '/panitia/statistik',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PanitiaSetupRoute = PanitiaSetupRouteImport.update({
   id: '/panitia/setup',
   path: '/panitia/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanitiaSertifikatRoute = PanitiaSertifikatRouteImport.update({
+  id: '/panitia/sertifikat',
+  path: '/panitia/sertifikat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaNpsnToolsRoute = PanitiaNpsnToolsRouteImport.update({
+  id: '/panitia/npsn-tools',
+  path: '/panitia/npsn-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaIdcardRoute = PanitiaIdcardRouteImport.update({
+  id: '/panitia/idcard',
+  path: '/panitia/idcard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaGaleriRoute = PanitiaGaleriRouteImport.update({
+  id: '/panitia/galeri',
+  path: '/panitia/galeri',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanitiaBracketRoute = PanitiaBracketRouteImport.update({
+  id: '/panitia/bracket',
+  path: '/panitia/bracket',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardProfilRoute = DashboardProfilRouteImport.update({
   id: '/dashboard/profil',
   path: '/dashboard/profil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BaganSlugRoute = BaganSlugRouteImport.update({
+  id: '/bagan/$slug',
+  path: '/bagan/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardPendaftaranIndexRoute =
@@ -101,12 +149,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/cabang-lomba': typeof CabangLombaRoute
   '/faq': typeof FaqRoute
+  '/galeri': typeof GaleriRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
+  '/bagan/$slug': typeof BaganSlugRoute
   '/dashboard/profil': typeof DashboardProfilRoute
+  '/panitia/bracket': typeof PanitiaBracketRoute
+  '/panitia/galeri': typeof PanitiaGaleriRoute
+  '/panitia/idcard': typeof PanitiaIdcardRoute
+  '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
+  '/panitia/statistik': typeof PanitiaStatistikRoute
+  '/bagan/': typeof BaganIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/panitia/': typeof PanitiaIndexRoute
   '/dashboard/pendaftaran/$id': typeof DashboardPendaftaranIdRoute
@@ -117,12 +173,20 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/cabang-lomba': typeof CabangLombaRoute
   '/faq': typeof FaqRoute
+  '/galeri': typeof GaleriRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
+  '/bagan/$slug': typeof BaganSlugRoute
   '/dashboard/profil': typeof DashboardProfilRoute
+  '/panitia/bracket': typeof PanitiaBracketRoute
+  '/panitia/galeri': typeof PanitiaGaleriRoute
+  '/panitia/idcard': typeof PanitiaIdcardRoute
+  '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
+  '/panitia/statistik': typeof PanitiaStatistikRoute
+  '/bagan': typeof BaganIndexRoute
   '/dashboard': typeof DashboardIndexRoute
   '/panitia': typeof PanitiaIndexRoute
   '/dashboard/pendaftaran/$id': typeof DashboardPendaftaranIdRoute
@@ -134,12 +198,20 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/cabang-lomba': typeof CabangLombaRoute
   '/faq': typeof FaqRoute
+  '/galeri': typeof GaleriRoute
   '/jadwal': typeof JadwalRoute
   '/kontak': typeof KontakRoute
   '/login': typeof LoginRoute
-  '/signup': typeof SignupRoute
+  '/bagan/$slug': typeof BaganSlugRoute
   '/dashboard/profil': typeof DashboardProfilRoute
+  '/panitia/bracket': typeof PanitiaBracketRoute
+  '/panitia/galeri': typeof PanitiaGaleriRoute
+  '/panitia/idcard': typeof PanitiaIdcardRoute
+  '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
+  '/panitia/statistik': typeof PanitiaStatistikRoute
+  '/bagan/': typeof BaganIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
   '/panitia/': typeof PanitiaIndexRoute
   '/dashboard/pendaftaran/$id': typeof DashboardPendaftaranIdRoute
@@ -152,12 +224,20 @@ export interface FileRouteTypes {
     | '/'
     | '/cabang-lomba'
     | '/faq'
+    | '/galeri'
     | '/jadwal'
     | '/kontak'
     | '/login'
-    | '/signup'
+    | '/bagan/$slug'
     | '/dashboard/profil'
+    | '/panitia/bracket'
+    | '/panitia/galeri'
+    | '/panitia/idcard'
+    | '/panitia/npsn-tools'
+    | '/panitia/sertifikat'
     | '/panitia/setup'
+    | '/panitia/statistik'
+    | '/bagan/'
     | '/dashboard/'
     | '/panitia/'
     | '/dashboard/pendaftaran/$id'
@@ -168,12 +248,20 @@ export interface FileRouteTypes {
     | '/'
     | '/cabang-lomba'
     | '/faq'
+    | '/galeri'
     | '/jadwal'
     | '/kontak'
     | '/login'
-    | '/signup'
+    | '/bagan/$slug'
     | '/dashboard/profil'
+    | '/panitia/bracket'
+    | '/panitia/galeri'
+    | '/panitia/idcard'
+    | '/panitia/npsn-tools'
+    | '/panitia/sertifikat'
     | '/panitia/setup'
+    | '/panitia/statistik'
+    | '/bagan'
     | '/dashboard'
     | '/panitia'
     | '/dashboard/pendaftaran/$id'
@@ -184,12 +272,20 @@ export interface FileRouteTypes {
     | '/'
     | '/cabang-lomba'
     | '/faq'
+    | '/galeri'
     | '/jadwal'
     | '/kontak'
     | '/login'
-    | '/signup'
+    | '/bagan/$slug'
     | '/dashboard/profil'
+    | '/panitia/bracket'
+    | '/panitia/galeri'
+    | '/panitia/idcard'
+    | '/panitia/npsn-tools'
+    | '/panitia/sertifikat'
     | '/panitia/setup'
+    | '/panitia/statistik'
+    | '/bagan/'
     | '/dashboard/'
     | '/panitia/'
     | '/dashboard/pendaftaran/$id'
@@ -201,12 +297,20 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CabangLombaRoute: typeof CabangLombaRoute
   FaqRoute: typeof FaqRoute
+  GaleriRoute: typeof GaleriRoute
   JadwalRoute: typeof JadwalRoute
   KontakRoute: typeof KontakRoute
   LoginRoute: typeof LoginRoute
-  SignupRoute: typeof SignupRoute
+  BaganSlugRoute: typeof BaganSlugRoute
   DashboardProfilRoute: typeof DashboardProfilRoute
+  PanitiaBracketRoute: typeof PanitiaBracketRoute
+  PanitiaGaleriRoute: typeof PanitiaGaleriRoute
+  PanitiaIdcardRoute: typeof PanitiaIdcardRoute
+  PanitiaNpsnToolsRoute: typeof PanitiaNpsnToolsRoute
+  PanitiaSertifikatRoute: typeof PanitiaSertifikatRoute
   PanitiaSetupRoute: typeof PanitiaSetupRoute
+  PanitiaStatistikRoute: typeof PanitiaStatistikRoute
+  BaganIndexRoute: typeof BaganIndexRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
   PanitiaIndexRoute: typeof PanitiaIndexRoute
   DashboardPendaftaranIdRoute: typeof DashboardPendaftaranIdRoute
@@ -216,13 +320,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -242,6 +339,13 @@ declare module '@tanstack/react-router' {
       path: '/jadwal'
       fullPath: '/jadwal'
       preLoaderRoute: typeof JadwalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/galeri': {
+      id: '/galeri'
+      path: '/galeri'
+      fullPath: '/galeri'
+      preLoaderRoute: typeof GaleriRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/faq': {
@@ -279,6 +383,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/bagan/': {
+      id: '/bagan/'
+      path: '/bagan'
+      fullPath: '/bagan/'
+      preLoaderRoute: typeof BaganIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/statistik': {
+      id: '/panitia/statistik'
+      path: '/panitia/statistik'
+      fullPath: '/panitia/statistik'
+      preLoaderRoute: typeof PanitiaStatistikRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/panitia/setup': {
       id: '/panitia/setup'
       path: '/panitia/setup'
@@ -286,11 +404,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanitiaSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panitia/sertifikat': {
+      id: '/panitia/sertifikat'
+      path: '/panitia/sertifikat'
+      fullPath: '/panitia/sertifikat'
+      preLoaderRoute: typeof PanitiaSertifikatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/npsn-tools': {
+      id: '/panitia/npsn-tools'
+      path: '/panitia/npsn-tools'
+      fullPath: '/panitia/npsn-tools'
+      preLoaderRoute: typeof PanitiaNpsnToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/idcard': {
+      id: '/panitia/idcard'
+      path: '/panitia/idcard'
+      fullPath: '/panitia/idcard'
+      preLoaderRoute: typeof PanitiaIdcardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/galeri': {
+      id: '/panitia/galeri'
+      path: '/panitia/galeri'
+      fullPath: '/panitia/galeri'
+      preLoaderRoute: typeof PanitiaGaleriRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panitia/bracket': {
+      id: '/panitia/bracket'
+      path: '/panitia/bracket'
+      fullPath: '/panitia/bracket'
+      preLoaderRoute: typeof PanitiaBracketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/profil': {
       id: '/dashboard/profil'
       path: '/dashboard/profil'
       fullPath: '/dashboard/profil'
       preLoaderRoute: typeof DashboardProfilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bagan/$slug': {
+      id: '/bagan/$slug'
+      path: '/bagan/$slug'
+      fullPath: '/bagan/$slug'
+      preLoaderRoute: typeof BaganSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/pendaftaran/': {
@@ -321,12 +481,20 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CabangLombaRoute: CabangLombaRoute,
   FaqRoute: FaqRoute,
+  GaleriRoute: GaleriRoute,
   JadwalRoute: JadwalRoute,
   KontakRoute: KontakRoute,
   LoginRoute: LoginRoute,
-  SignupRoute: SignupRoute,
+  BaganSlugRoute: BaganSlugRoute,
   DashboardProfilRoute: DashboardProfilRoute,
+  PanitiaBracketRoute: PanitiaBracketRoute,
+  PanitiaGaleriRoute: PanitiaGaleriRoute,
+  PanitiaIdcardRoute: PanitiaIdcardRoute,
+  PanitiaNpsnToolsRoute: PanitiaNpsnToolsRoute,
+  PanitiaSertifikatRoute: PanitiaSertifikatRoute,
   PanitiaSetupRoute: PanitiaSetupRoute,
+  PanitiaStatistikRoute: PanitiaStatistikRoute,
+  BaganIndexRoute: BaganIndexRoute,
   DashboardIndexRoute: DashboardIndexRoute,
   PanitiaIndexRoute: PanitiaIndexRoute,
   DashboardPendaftaranIdRoute: DashboardPendaftaranIdRoute,
@@ -336,13 +504,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

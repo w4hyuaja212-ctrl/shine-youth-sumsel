@@ -18,7 +18,7 @@ export const Route = createFileRoute("/dashboard/profil")({
 function ProfilPage() {
   const { user } = useAuth();
   const [p, setP] = useState<any>(null);
-  const [pw, setPw] = useState({ now: "", next: "", confirm: "" });
+  
 
   useEffect(() => {
     if (!user) return;
@@ -32,17 +32,11 @@ function ProfilPage() {
     if (error) toast.error(error.message); else toast.success("Profil tersimpan");
   };
 
-  const changePw = async () => {
-    if (pw.next !== pw.confirm) return toast.error("Konfirmasi password berbeda");
-    if (pw.next.length < 8) return toast.error("Minimal 8 karakter");
-    const { error } = await supabase.auth.updateUser({ password: pw.next });
-    if (error) toast.error(error.message); else { toast.success("Password diperbarui"); setPw({ now: "", next: "", confirm: "" }); }
-  };
-
   if (!p) return <div className="text-sm text-muted-foreground">Memuat…</div>;
   return (
     <div className="space-y-6">
       <h1 className="font-display text-2xl font-bold">Profil Sekolah & Akun</h1>
+      <p className="text-sm text-muted-foreground">Login berbasis NPSN — tidak ada password yang perlu dikelola. Pastikan PIC & WhatsApp benar agar status pendaftaran sampai ke nomor yang tepat.</p>
 
       <Card><CardContent className="space-y-3 p-6">
         <h2 className="font-semibold">Informasi Sekolah</h2>
@@ -55,19 +49,10 @@ function ProfilPage() {
           <div className="sm:col-span-2"><Label>Nama Sekolah</Label><Input value={p.nama_sekolah ?? ""} onChange={(e) => setP({ ...p, nama_sekolah: e.target.value })} /></div>
           <div><Label>Email</Label><Input value={p.email ?? ""} onChange={(e) => setP({ ...p, email: e.target.value })} /></div>
           <div><Label>Nama PIC</Label><Input value={p.nama_pic ?? ""} onChange={(e) => setP({ ...p, nama_pic: e.target.value })} /></div>
-          <div><Label>WhatsApp PIC</Label><Input value={p.no_wa ?? ""} onChange={(e) => setP({ ...p, no_wa: e.target.value })} /></div>
+          <div><Label>WhatsApp PIC</Label><Input value={p.no_wa ?? ""} onChange={(e) => setP({ ...p, no_wa: e.target.value })} placeholder="08xxxx" /></div>
           <div className="sm:col-span-2"><Label>Alamat</Label><Textarea rows={2} value={p.alamat ?? ""} onChange={(e) => setP({ ...p, alamat: e.target.value })} /></div>
         </div>
         <Button onClick={save}>Simpan Profil</Button>
-      </CardContent></Card>
-
-      <Card><CardContent className="space-y-3 p-6">
-        <h2 className="font-semibold">Ganti Password</h2>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div><Label>Password Baru</Label><Input type="password" value={pw.next} onChange={(e) => setPw({ ...pw, next: e.target.value })} /></div>
-          <div><Label>Konfirmasi</Label><Input type="password" value={pw.confirm} onChange={(e) => setPw({ ...pw, confirm: e.target.value })} /></div>
-        </div>
-        <Button variant="outline" onClick={changePw}>Perbarui Password</Button>
       </CardContent></Card>
     </div>
   );
