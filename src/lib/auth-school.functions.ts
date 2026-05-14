@@ -1,10 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-
-const NPSN_API = "https://api.fazriansyah.eu.org/v1/sekolah";
+import { getNpsnEndpoints } from "./settings.functions";
 
 const npsnEmail = (npsn: string) => `npsn-${npsn.trim()}@smamsa.local`;
+
+async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<any> {
+  const endpoints = await getNpsnEndpoints();
+  let lastErr: string | null = null;
+  for (const base of endpoints) {
+    try {
+      const res = await fetch(`${base}/sekolah?npsn=${npsn}`, { headers: { Accept: "application/json" } });
+      if (!res.ok) { lastErr = `HTTP ${res.status} dari ${base}`; continue; }
+      const json: any = await res.json().catch(() => null);
+      if (json?.data?.satuanPendidikan?.npsn) return json;
+      lastErr = `NPSN tidak ditemukan di ${base}`;
+    } catch (e) { lastErr = (e as Error).message; }
+  }
+  throw new Error(lastErr ?? "Tidak dapat menghubungi server NPSN.");
+}
 
 function jenjangFromBentuk(b: string | undefined): string {
   const v = (b || "").toUpperCase();
@@ -20,12 +34,8 @@ export const loginByNPSN = createServerFn({ method: "POST" })
     z.object({ npsn: z.string().regex(/^\d{8}$/, "NPSN harus 8 digit") }).parse(d),
   )
   .handler(async ({ data }) => {
-    // 1) Verifikasi ke Dapodik publik
-    const res = await fetch(`${NPSN_API}?npsn=${data.npsn}`, {
-      headers: { Accept: "application/json" },
-    }).catch(() => null);
-    if (!res || !res.ok) throw new Error("Tidak dapat menghubungi server NPSN. Coba lagi.");
-    const json: any = await res.json().catch(() => ({}));
+    // 1) Verifikasi ke endpoint NPSN (failover beberapa link, dikelola Superadmin)
+    const json = await fetchNpsnFromAnyEndpoint(data.npsn);
     const sat = json?.data?.satuanPendidikan;
     if (!sat?.npsn || String(sat.npsn) !== data.npsn) {
       throw new Error("NPSN tidak ditemukan di Data Pokok Pendidikan.");

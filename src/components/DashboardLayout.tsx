@@ -3,10 +3,10 @@ import { ReactNode, useEffect } from "react";
 import { useAuth } from "@/lib/auth-context";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { LayoutDashboard, FileText, User, LogOut, ListPlus, ShieldCheck, Loader2, BarChart3, Search, Image as ImageIcon, Trophy, FileBadge, IdCard } from "lucide-react";
+import { LayoutDashboard, FileText, User, LogOut, ListPlus, ShieldCheck, Loader2, BarChart3, Search, Image as ImageIcon, Trophy, FileBadge, IdCard, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }> };
+type Item = { to: string; label: string; icon: React.ComponentType<{ className?: string }>; superadminOnly?: boolean };
 
 const SCHOOL_NAV: Item[] = [
   { to: "/dashboard", label: "Ringkasan", icon: LayoutDashboard },
@@ -23,13 +23,14 @@ const PANITIA_NAV: Item[] = [
   { to: "/panitia/idcard", label: "Cetak ID Card", icon: IdCard },
   { to: "/panitia/galeri", label: "Galeri Kegiatan", icon: ImageIcon },
   { to: "/panitia/npsn-tools", label: "NPSN Tools", icon: Search },
+  { to: "/panitia/pengaturan", label: "Pengaturan", icon: Settings, superadminOnly: true },
 ];
 
 export function DashboardLayout({ mode, children }: { mode: "school" | "panitia"; children: ReactNode }) {
-  const { loading, user, isPanitia, isSchool, signOut, roles } = useAuth();
+  const { loading, user, isPanitia, isSchool, isSuperadmin, signOut, roles } = useAuth();
   const nav = useNavigate();
   const loc = useLocation();
-  const items = mode === "school" ? SCHOOL_NAV : PANITIA_NAV;
+  const items = (mode === "school" ? SCHOOL_NAV : PANITIA_NAV).filter((it) => !it.superadminOnly || isSuperadmin);
 
   useEffect(() => {
     if (loading) return;

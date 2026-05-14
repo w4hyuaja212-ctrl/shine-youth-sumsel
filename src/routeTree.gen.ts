@@ -22,6 +22,7 @@ import { Route as BaganIndexRouteImport } from './routes/bagan.index'
 import { Route as PanitiaStatistikRouteImport } from './routes/panitia.statistik'
 import { Route as PanitiaSetupRouteImport } from './routes/panitia.setup'
 import { Route as PanitiaSertifikatRouteImport } from './routes/panitia.sertifikat'
+import { Route as PanitiaPengaturanRouteImport } from './routes/panitia.pengaturan'
 import { Route as PanitiaNpsnToolsRouteImport } from './routes/panitia.npsn-tools'
 import { Route as PanitiaIdcardRouteImport } from './routes/panitia.idcard'
 import { Route as PanitiaGaleriRouteImport } from './routes/panitia.galeri'
@@ -97,6 +98,11 @@ const PanitiaSertifikatRoute = PanitiaSertifikatRouteImport.update({
   path: '/panitia/sertifikat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PanitiaPengaturanRoute = PanitiaPengaturanRouteImport.update({
+  id: '/panitia/pengaturan',
+  path: '/panitia/pengaturan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PanitiaNpsnToolsRoute = PanitiaNpsnToolsRouteImport.update({
   id: '/panitia/npsn-tools',
   path: '/panitia/npsn-tools',
@@ -159,6 +165,7 @@ export interface FileRoutesByFullPath {
   '/panitia/galeri': typeof PanitiaGaleriRoute
   '/panitia/idcard': typeof PanitiaIdcardRoute
   '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/pengaturan': typeof PanitiaPengaturanRoute
   '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/panitia/statistik': typeof PanitiaStatistikRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByTo {
   '/panitia/galeri': typeof PanitiaGaleriRoute
   '/panitia/idcard': typeof PanitiaIdcardRoute
   '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/pengaturan': typeof PanitiaPengaturanRoute
   '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/panitia/statistik': typeof PanitiaStatistikRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/panitia/galeri': typeof PanitiaGaleriRoute
   '/panitia/idcard': typeof PanitiaIdcardRoute
   '/panitia/npsn-tools': typeof PanitiaNpsnToolsRoute
+  '/panitia/pengaturan': typeof PanitiaPengaturanRoute
   '/panitia/sertifikat': typeof PanitiaSertifikatRoute
   '/panitia/setup': typeof PanitiaSetupRoute
   '/panitia/statistik': typeof PanitiaStatistikRoute
@@ -234,6 +243,7 @@ export interface FileRouteTypes {
     | '/panitia/galeri'
     | '/panitia/idcard'
     | '/panitia/npsn-tools'
+    | '/panitia/pengaturan'
     | '/panitia/sertifikat'
     | '/panitia/setup'
     | '/panitia/statistik'
@@ -258,6 +268,7 @@ export interface FileRouteTypes {
     | '/panitia/galeri'
     | '/panitia/idcard'
     | '/panitia/npsn-tools'
+    | '/panitia/pengaturan'
     | '/panitia/sertifikat'
     | '/panitia/setup'
     | '/panitia/statistik'
@@ -282,6 +293,7 @@ export interface FileRouteTypes {
     | '/panitia/galeri'
     | '/panitia/idcard'
     | '/panitia/npsn-tools'
+    | '/panitia/pengaturan'
     | '/panitia/sertifikat'
     | '/panitia/setup'
     | '/panitia/statistik'
@@ -307,6 +319,7 @@ export interface RootRouteChildren {
   PanitiaGaleriRoute: typeof PanitiaGaleriRoute
   PanitiaIdcardRoute: typeof PanitiaIdcardRoute
   PanitiaNpsnToolsRoute: typeof PanitiaNpsnToolsRoute
+  PanitiaPengaturanRoute: typeof PanitiaPengaturanRoute
   PanitiaSertifikatRoute: typeof PanitiaSertifikatRoute
   PanitiaSetupRoute: typeof PanitiaSetupRoute
   PanitiaStatistikRoute: typeof PanitiaStatistikRoute
@@ -411,6 +424,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PanitiaSertifikatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/panitia/pengaturan': {
+      id: '/panitia/pengaturan'
+      path: '/panitia/pengaturan'
+      fullPath: '/panitia/pengaturan'
+      preLoaderRoute: typeof PanitiaPengaturanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/panitia/npsn-tools': {
       id: '/panitia/npsn-tools'
       path: '/panitia/npsn-tools'
@@ -491,6 +511,7 @@ const rootRouteChildren: RootRouteChildren = {
   PanitiaGaleriRoute: PanitiaGaleriRoute,
   PanitiaIdcardRoute: PanitiaIdcardRoute,
   PanitiaNpsnToolsRoute: PanitiaNpsnToolsRoute,
+  PanitiaPengaturanRoute: PanitiaPengaturanRoute,
   PanitiaSertifikatRoute: PanitiaSertifikatRoute,
   PanitiaSetupRoute: PanitiaSetupRoute,
   PanitiaStatistikRoute: PanitiaStatistikRoute,
