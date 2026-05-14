@@ -7,17 +7,34 @@ const npsnEmail = (npsn: string) => `npsn-${npsn.trim()}@smamsa.local`;
 
 async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<any> {
   const endpoints = await getNpsnEndpoints();
-  let lastErr: string | null = null;
+  const errors: string[] = [];
   for (const base of endpoints) {
+    const url = `${base}/sekolah?npsn=${npsn}`;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 10_000);
     try {
-      const res = await fetch(`${base}/sekolah?npsn=${npsn}`, { headers: { Accept: "application/json" } });
-      if (!res.ok) { lastErr = `HTTP ${res.status} dari ${base}`; continue; }
+      const res = await fetch(url, {
+        headers: { Accept: "application/json", "User-Agent": "SMAMSA-Lomba/1.0" },
+        signal: ctrl.signal,
+      });
+      if (!res.ok) { errors.push(`${base} → HTTP ${res.status}`); continue; }
       const json: any = await res.json().catch(() => null);
       if (json?.data?.satuanPendidikan?.npsn) return json;
-      lastErr = `NPSN tidak ditemukan di ${base}`;
-    } catch (e) { lastErr = (e as Error).message; }
+      errors.push(`${base} → NPSN tidak ditemukan`);
+    } catch (e) {
+      const msg = (e as Error)?.message || String(e);
+      const hint = /abort/i.test(msg) ? "timeout 10s"
+        : /fetch failed|ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ECONNRESET/i.test(msg) ? "host tidak dapat dihubungi"
+        : msg;
+      errors.push(`${base} → ${hint}`);
+    } finally {
+      clearTimeout(timer);
+    }
   }
-  throw new Error(lastErr ?? "Tidak dapat menghubungi server NPSN.");
+  throw new Error(
+    `Gagal menghubungi server NPSN. Detail: ${errors.join(" | ")}. ` +
+    `Minta Superadmin menambah/mengganti endpoint di menu Pengaturan.`,
+  );
 }
 
 function jenjangFromBentuk(b: string | undefined): string {
