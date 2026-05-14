@@ -1,18 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth-context";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Search, Copy, ExternalLink, Loader2 } from "lucide-react";
+import { Search, Copy, ExternalLink, Loader2, Settings } from "lucide-react";
 
 export const Route = createFileRoute("/panitia/npsn-tools")({
   head: () => ({ meta: [{ title: "NPSN Tools — Panitia" }] }),
   component: () => <DashboardLayout mode="panitia"><NpsnTools /></DashboardLayout>,
 });
 
-const BASE = "https://api.fazriansyah.eu.org/v1";
+const DEFAULT_BASE = "https://api.fazriansyah.eu.org/v1";
 
 const ENDPOINTS = [
   { label: "Detail Sekolah by NPSN", path: "/sekolah?npsn={NPSN}", placeholder: "10609020", needs: "npsn" },
