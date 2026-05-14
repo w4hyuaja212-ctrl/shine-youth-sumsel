@@ -34,12 +34,8 @@ export const loginByNPSN = createServerFn({ method: "POST" })
     z.object({ npsn: z.string().regex(/^\d{8}$/, "NPSN harus 8 digit") }).parse(d),
   )
   .handler(async ({ data }) => {
-    // 1) Verifikasi ke Dapodik publik
-    const res = await fetch(`${NPSN_API}?npsn=${data.npsn}`, {
-      headers: { Accept: "application/json" },
-    }).catch(() => null);
-    if (!res || !res.ok) throw new Error("Tidak dapat menghubungi server NPSN. Coba lagi.");
-    const json: any = await res.json().catch(() => ({}));
+    // 1) Verifikasi ke endpoint NPSN (failover beberapa link, dikelola Superadmin)
+    const json = await fetchNpsnFromAnyEndpoint(data.npsn);
     const sat = json?.data?.satuanPendidikan;
     if (!sat?.npsn || String(sat.npsn) !== data.npsn) {
       throw new Error("NPSN tidak ditemukan di Data Pokok Pendidikan.");
