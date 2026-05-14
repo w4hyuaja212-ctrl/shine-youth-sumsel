@@ -32,37 +32,56 @@ function normalizeSchool(json: any, npsn: string): SchoolInfo | null {
   return null;
 }
 
+async function tryEndpoint(base: string, npsn: string, timeoutMs: number): Promise<SchoolInfo> {
+  const url = `${base}/sekolah?npsn=${npsn}`;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json", "User-Agent": "SMAMSA-Lomba/1.0" },
+      signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`${base} → HTTP ${res.status}`);
+    const json: any = await res.json().catch(() => null);
+    const info = normalizeSchool(json, npsn);
+    if (!info) throw new Error(`${base} → NPSN tidak ditemukan`);
+    return info;
+  } catch (e) {
+    const msg = (e as Error)?.message || String(e);
+    const hint = /abort/i.test(msg) ? `${base} → timeout ${timeoutMs / 1000}s`
+      : /fetch failed|ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ECONNRESET/i.test(msg) ? `${base} → host tidak dapat dihubungi`
+      : msg;
+    throw new Error(hint);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<SchoolInfo> {
   const endpoints = await getNpsnEndpoints();
-  const errors: string[] = [];
-  for (const base of endpoints) {
-    const url = `${base}/sekolah?npsn=${npsn}`;
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 10_000);
+  const TIMEOUT = 15_000;
+  // Race semua endpoint paralel — yang pertama sukses dipakai
+  const attempt = async () => {
     try {
-      const res = await fetch(url, {
-        headers: { Accept: "application/json", "User-Agent": "SMAMSA-Lomba/1.0" },
-        signal: ctrl.signal,
-      });
-      if (!res.ok) { errors.push(`${base} → HTTP ${res.status}`); continue; }
-      const json: any = await res.json().catch(() => null);
-      const info = normalizeSchool(json, npsn);
-      if (info) return info;
-      errors.push(`${base} → NPSN tidak ditemukan`);
-    } catch (e) {
-      const msg = (e as Error)?.message || String(e);
-      const hint = /abort/i.test(msg) ? "timeout 10s"
-        : /fetch failed|ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ECONNRESET/i.test(msg) ? "host tidak dapat dihubungi"
-        : msg;
-      errors.push(`${base} → ${hint}`);
-    } finally {
-      clearTimeout(timer);
+      return await Promise.any(endpoints.map((b) => tryEndpoint(b, npsn, TIMEOUT)));
+    } catch (e: any) {
+      const errs: Error[] = e?.errors ?? [e];
+      throw new Error(errs.map((x) => x?.message || String(x)).join(" | "));
+    }
+  };
+  try {
+    return await attempt();
+  } catch (firstErr) {
+    // Retry sekali (cold-start Vercel sering gagal di percobaan pertama)
+    try {
+      return await attempt();
+    } catch (secondErr) {
+      throw new Error(
+        `Gagal menghubungi server NPSN. Detail: ${(secondErr as Error).message}. ` +
+        `Minta Superadmin menambah/mengganti endpoint di menu Pengaturan.`,
+      );
     }
   }
-  throw new Error(
-    `Gagal menghubungi server NPSN. Detail: ${errors.join(" | ")}. ` +
-    `Minta Superadmin menambah/mengganti endpoint di menu Pengaturan.`,
-  );
 }
 
 function jenjangFromBentuk(b: string | undefined): string {
