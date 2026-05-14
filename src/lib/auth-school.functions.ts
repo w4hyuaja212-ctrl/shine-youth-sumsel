@@ -5,7 +5,34 @@ import { getNpsnEndpoints } from "./settings.functions";
 
 const npsnEmail = (npsn: string) => `npsn-${npsn.trim()}@smamsa.local`;
 
-async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<any> {
+type SchoolInfo = { npsn: string; nama: string; bentuk: string; alamat: string };
+
+function normalizeSchool(json: any, npsn: string): SchoolInfo | null {
+  // Schema A: api.fazriansyah → { data: { satuanPendidikan: {...} } }
+  const s = json?.data?.satuanPendidikan;
+  if (s?.npsn && String(s.npsn) === npsn) {
+    return {
+      npsn: String(s.npsn),
+      nama: s.nama ?? "Sekolah",
+      bentuk: s.bentukPendidikan ?? "",
+      alamat: [s.alamatJalan, s.namaDesa, s.namaKecamatan, s.namaKabupaten, s.namaProvinsi].filter(Boolean).join(", "),
+    };
+  }
+  // Schema B: api-sekolah-indonesia → { dataSekolah: [{...}] }
+  const arr = Array.isArray(json?.dataSekolah) ? json.dataSekolah : null;
+  const m = arr?.find((x: any) => String(x?.npsn).trim() === npsn) ?? arr?.[0];
+  if (m?.npsn && String(m.npsn).trim() === npsn) {
+    return {
+      npsn: String(m.npsn).trim(),
+      nama: m.sekolah ?? m.nama ?? "Sekolah",
+      bentuk: m.bentuk ?? "",
+      alamat: [m.alamat_jalan, m.kecamatan, m.kabupaten_kota, m.propinsi].filter(Boolean).join(", "),
+    };
+  }
+  return null;
+}
+
+async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<SchoolInfo> {
   const endpoints = await getNpsnEndpoints();
   const errors: string[] = [];
   for (const base of endpoints) {
@@ -19,7 +46,8 @@ async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<any> {
       });
       if (!res.ok) { errors.push(`${base} → HTTP ${res.status}`); continue; }
       const json: any = await res.json().catch(() => null);
-      if (json?.data?.satuanPendidikan?.npsn) return json;
+      const info = normalizeSchool(json, npsn);
+      if (info) return info;
       errors.push(`${base} → NPSN tidak ditemukan`);
     } catch (e) {
       const msg = (e as Error)?.message || String(e);
@@ -52,17 +80,12 @@ export const loginByNPSN = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     // 1) Verifikasi ke endpoint NPSN (failover beberapa link, dikelola Superadmin)
-    const json = await fetchNpsnFromAnyEndpoint(data.npsn);
-    const sat = json?.data?.satuanPendidikan;
-    if (!sat?.npsn || String(sat.npsn) !== data.npsn) {
-      throw new Error("NPSN tidak ditemukan di Data Pokok Pendidikan.");
-    }
+    const sat = await fetchNpsnFromAnyEndpoint(data.npsn);
 
     const email = npsnEmail(data.npsn);
-    const namaSekolah: string = sat.nama ?? "Sekolah";
-    const alamat = [sat.alamatJalan, sat.namaDesa, sat.namaKecamatan, sat.namaKabupaten, sat.namaProvinsi]
-      .filter(Boolean).join(", ");
-    const jenjang = jenjangFromBentuk(sat.bentukPendidikan);
+    const namaSekolah = sat.nama;
+    const alamat = sat.alamat;
+    const jenjang = jenjangFromBentuk(sat.bentuk);
     const tempPassword = crypto.randomUUID() + "Aa1!";
 
     // 2) Cari akun lewat tabel profiles (npsn → uid)
