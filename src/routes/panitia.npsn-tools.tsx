@@ -26,15 +26,28 @@ const ENDPOINTS = [
 ] as const;
 
 function NpsnTools() {
+  const { isSuperadmin } = useAuth();
+  const [bases, setBases] = useState<string[]>([DEFAULT_BASE]);
+  const [activeBase, setActiveBase] = useState<string>(DEFAULT_BASE);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [data, setData] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.from("app_settings").select("value").eq("key", "npsn_api_endpoints").maybeSingle().then(({ data }) => {
+      const v = data?.value as unknown;
+      if (Array.isArray(v) && v.length) {
+        const arr = (v as string[]).map((s) => s.replace(/\/+$/, "")).filter(Boolean);
+        setBases(arr); setActiveBase(arr[0]);
+      }
+    });
+  }, []);
 
   const lookup = async () => {
     if (!/^\d{8}$/.test(q)) { toast.error("Masukkan NPSN 8 digit"); return; }
     setBusy(true); setData(null);
     try {
-      const r = await fetch(`${BASE}/sekolah?npsn=${q}`);
+      const r = await fetch(`${activeBase}/sekolah?npsn=${q}`);
       const j = await r.json();
       setData(j);
       if (!j?.data?.satuanPendidikan?.npsn) toast.error("Tidak ditemukan");
@@ -44,14 +57,33 @@ function NpsnTools() {
   };
 
   const buildUrl = (path: string, val: string) =>
-    `${BASE}${path.replace(/\{[^}]+\}/g, encodeURIComponent(val || ""))}`;
+    `${activeBase}${path.replace(/\{[^}]+\}/g, encodeURIComponent(val || ""))}`;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold">NPSN Tools</h1>
-        <p className="text-sm text-muted-foreground">Pencarian & tautan langsung ke API Data Pokok Pendidikan publik.</p>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold">NPSN Tools</h1>
+          <p className="text-sm text-muted-foreground">Pencarian & tautan langsung ke API Data Pokok Pendidikan publik.</p>
+        </div>
+        {isSuperadmin && (
+          <Link to="/panitia/pengaturan" className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs hover:bg-accent">
+            <Settings className="h-3 w-3" /> Kelola Endpoint
+          </Link>
+        )}
       </div>
+
+      <Card><CardContent className="p-4 space-y-2">
+        <div className="text-xs font-semibold uppercase text-muted-foreground">Endpoint Aktif</div>
+        <div className="flex flex-wrap gap-2">
+          {bases.map((b) => (
+            <Button key={b} size="sm" variant={b === activeBase ? "default" : "outline"} onClick={() => setActiveBase(b)}>
+              {b}
+            </Button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground">{bases.length} endpoint terdaftar. {isSuperadmin ? "Tambah/ubah dari menu Pengaturan." : "Hanya Superadmin yang dapat mengubah daftar."}</p>
+      </CardContent></Card>
 
       <Card><CardContent className="p-6 space-y-4">
         <div className="flex gap-2">
