@@ -1,10 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
-
-const NPSN_API = "https://api.fazriansyah.eu.org/v1/sekolah";
+import { getNpsnEndpoints } from "./settings.functions";
 
 const npsnEmail = (npsn: string) => `npsn-${npsn.trim()}@smamsa.local`;
+
+async function fetchNpsnFromAnyEndpoint(npsn: string): Promise<any> {
+  const endpoints = await getNpsnEndpoints();
+  let lastErr: string | null = null;
+  for (const base of endpoints) {
+    try {
+      const res = await fetch(`${base}/sekolah?npsn=${npsn}`, { headers: { Accept: "application/json" } });
+      if (!res.ok) { lastErr = `HTTP ${res.status} dari ${base}`; continue; }
+      const json: any = await res.json().catch(() => null);
+      if (json?.data?.satuanPendidikan?.npsn) return json;
+      lastErr = `NPSN tidak ditemukan di ${base}`;
+    } catch (e) { lastErr = (e as Error).message; }
+  }
+  throw new Error(lastErr ?? "Tidak dapat menghubungi server NPSN.");
+}
 
 function jenjangFromBentuk(b: string | undefined): string {
   const v = (b || "").toUpperCase();
