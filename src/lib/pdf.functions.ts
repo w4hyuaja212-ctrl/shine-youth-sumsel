@@ -14,6 +14,60 @@ async function fetchTeamData(supabase: any, registrationId: string) {
   return { reg, members: members ?? [], profile };
 }
 
+// Sertifikat untuk SATU peserta (cetak individu)
+export const generateCertificateForMember = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    registrationId: z.string().uuid(),
+    memberId: z.string().uuid().optional(),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { reg, members, profile } = await fetchTeamData(context.supabase, data.registrationId);
+    if (reg.status !== "verified") throw new Error("Sertifikat hanya untuk peserta yang sudah TERVERIFIKASI.");
+
+    let target: any;
+    if (data.memberId) {
+      target = members.find((m: any) => m.id === data.memberId);
+      if (!target) throw new Error("Anggota tidak ditemukan.");
+    } else {
+      target = { nama: reg.nama_tim ?? "Peserta", peran: "Peserta" };
+    }
+
+    const pdf = await PDFDocument.create();
+    const font = await pdf.embedFont(StandardFonts.HelveticaBold);
+    const fontReg = await pdf.embedFont(StandardFonts.Helvetica);
+    const fontIt = await pdf.embedFont(StandardFonts.HelveticaOblique);
+
+    const page = pdf.addPage([842, 595]);
+    page.drawRectangle({ x: 20, y: 20, width: 802, height: 555, borderColor: rgb(0.83, 0.69, 0.22), borderWidth: 4 });
+    page.drawRectangle({ x: 32, y: 32, width: 778, height: 531, borderColor: rgb(0.83, 0.69, 0.22), borderWidth: 1 });
+    page.drawText("SHINE OF SMAMSA 2026", { x: 421 - font.widthOfTextAtSize("SHINE OF SMAMSA 2026", 26) / 2, y: 510, size: 26, font, color: rgb(0.05, 0.13, 0.35) });
+    page.drawText("SMA Muhammadiyah 1 Palembang", { x: 421 - fontReg.widthOfTextAtSize("SMA Muhammadiyah 1 Palembang", 12) / 2, y: 488, size: 12, font: fontReg, color: rgb(0.3, 0.3, 0.3) });
+    page.drawText("SERTIFIKAT", { x: 421 - font.widthOfTextAtSize("SERTIFIKAT", 36) / 2, y: 420, size: 36, font, color: rgb(0.83, 0.69, 0.22) });
+    page.drawText("Diberikan kepada:", { x: 421 - fontReg.widthOfTextAtSize("Diberikan kepada:", 14) / 2, y: 380, size: 14, font: fontReg });
+    const nm = String(target.nama || "Peserta").toUpperCase();
+    const nmSize = nm.length > 30 ? 28 : 36;
+    page.drawText(nm, { x: 421 - font.widthOfTextAtSize(nm, nmSize) / 2, y: 320, size: nmSize, font, color: rgb(0.05, 0.13, 0.35) });
+    page.drawLine({ start: { x: 200, y: 305 }, end: { x: 642, y: 305 }, thickness: 1, color: rgb(0.83, 0.69, 0.22) });
+    const sekolah = profile?.nama_sekolah ?? "—";
+    const peran = target.peran ? ` sebagai ${target.peran}` : "";
+    const lines = [
+      `Sebagai peserta cabang lomba ${reg.lomba_name}${reg.kategori ? ` (${reg.kategori})` : ""}${peran}`,
+      `mewakili ${sekolah}`,
+      `dalam ajang SHINE OF SMAMSA 2026 — Sportsmanship, Harmony, Innovation, Nurture, Excellence.`,
+    ];
+    lines.forEach((t, i) => {
+      page.drawText(t, { x: 421 - fontReg.widthOfTextAtSize(t, 13) / 2, y: 270 - i * 20, size: 13, font: fontReg });
+    });
+    page.drawText(`Palembang, ${fmtDate()}`, { x: 580, y: 130, size: 11, font: fontIt });
+    page.drawText("Ketua Panitia", { x: 600, y: 70, size: 11, font });
+    page.drawText("SHINE OF SMAMSA 2026", { x: 580, y: 56, size: 9, font: fontReg });
+
+    const bytes = await pdf.save();
+    const safe = String(target.nama || "peserta").toLowerCase().replace(/[^a-z0-9]+/g, "-").slice(0, 40);
+    return { base64: Buffer.from(bytes).toString("base64"), filename: `sertifikat-${safe}-${reg.lomba_slug}.pdf` };
+  });
+
 export const generateCertificates = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ registrationId: z.string().uuid() }).parse(d))
