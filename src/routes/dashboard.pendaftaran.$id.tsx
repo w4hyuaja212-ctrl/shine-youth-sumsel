@@ -1,16 +1,16 @@
 import { createFileRoute, useParams, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
+import { LOMBA } from "@/data/lomba";
 import { toast } from "sonner";
 import { StatusBadge } from "./dashboard.index";
-import { Trash2, Upload, Loader2, Save, Send } from "lucide-react";
+import { Trash2, Upload, Loader2, Save, Send, ImagePlus } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/pendaftaran/$id")({
   head: () => ({ meta: [{ title: "Detail Pendaftaran — SOF SMAMSA" }] }),
