@@ -94,6 +94,12 @@ function LoginPage() {
                       Cukup masukkan NPSN. Akun sekolah akan terbuat & diverifikasi otomatis ke Data Pokok Pendidikan.
                     </p>
                   </div>
+                  {loading && statusMsg && (
+                    <div className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+                      <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
+                      {statusMsg}
+                    </div>
+                  )}
                   <Button type="submit" disabled={loading} className="w-full">
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />} Masuk Sekolah
                   </Button>
