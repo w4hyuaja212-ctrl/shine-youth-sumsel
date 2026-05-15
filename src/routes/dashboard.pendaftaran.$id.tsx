@@ -70,8 +70,33 @@ function DetailPage() {
 
   const addMember = async () => {
     if (!newMember.nama) return toast.error("Nama wajib diisi");
-    const { error } = await supabase.from("registration_members").insert({ ...newMember, registration_id: id });
-    if (error) toast.error(error.message); else { setNewMember({ nama: "", jenis_kelamin: "L", nisn: "", kelas: "", peran: "anggota", no_wa: "" }); load(); }
+    if (!user) return;
+    setAddingMember(true);
+    try {
+      const peran = isIndividu ? "peserta" : newMember.peran;
+      const { error } = await supabase.from("registration_members")
+        .insert({ ...newMember, peran, registration_id: id });
+      if (error) throw error;
+      // Upload foto peserta (opsional) → masuk ke registration_files dgn jenis spesifik
+      if (newFoto) {
+        const path = `${user.id}/${id}/peserta-${Date.now()}-${newFoto.name}`;
+        const { error: upErr } = await supabase.storage.from("berkas").upload(path, newFoto);
+        if (upErr) throw upErr;
+        await supabase.from("registration_files").insert({
+          registration_id: id, jenis: `Foto Peserta - ${newMember.nama}`,
+          file_path: path, file_name: newFoto.name, size_bytes: newFoto.size,
+        });
+      }
+      setNewMember({ nama: "", jenis_kelamin: reg?.kategori === "Putri" ? "P" : "L", nisn: "", kelas: "", peran: "anggota", no_wa: "" });
+      setNewFoto(null);
+      if (fotoRef.current) fotoRef.current.value = "";
+      toast.success("Peserta ditambahkan");
+      load();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setAddingMember(false);
+    }
   };
   const delMember = async (mid: string) => { await supabase.from("registration_members").delete().eq("id", mid); load(); };
 
