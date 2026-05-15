@@ -27,13 +27,20 @@ function LoginPage() {
   const [user, setUser] = useState("");
   const [pwPan, setPwPan] = useState("");
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string>("");
 
   const submitSchool = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^\d{8}$/.test(npsn)) { toast.error("NPSN harus 8 digit"); return; }
     setLoading(true);
+    setStatusMsg("Menghubungi server NPSN…");
+    // Status progresif supaya user tahu app belum hang
+    const t1 = setTimeout(() => setStatusMsg("Masih mencari data sekolah, mohon tunggu…"), 4000);
+    const t2 = setTimeout(() => setStatusMsg("Server lambat — mencoba endpoint cadangan…"), 10000);
+    const t3 = setTimeout(() => setStatusMsg("Mencoba ulang otomatis (cold-start server NPSN)…"), 18000);
     try {
       const r = await npsnLogin({ data: { npsn } });
+      setStatusMsg("Berhasil — masuk ke dashboard…");
       const { error } = await supabase.auth.signInWithPassword({ email: r.email, password: r.tempPassword });
       if (error) throw error;
       await refreshRoles();
@@ -41,7 +48,9 @@ function LoginPage() {
       nav({ to: "/dashboard" });
     } catch (err) {
       toast.error((err as Error).message);
+      setStatusMsg("");
     } finally {
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
       setLoading(false);
     }
   };
