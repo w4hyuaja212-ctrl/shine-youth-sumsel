@@ -27,7 +27,19 @@ function DetailPage() {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [newMember, setNewMember] = useState({ nama: "", jenis_kelamin: "L", nisn: "", kelas: "", peran: "anggota", no_wa: "" });
+  const [newFoto, setNewFoto] = useState<File | null>(null);
+  const [addingMember, setAddingMember] = useState(false);
+  const fotoRef = useRef<HTMLInputElement>(null);
   const [fileJenis, setFileJenis] = useState("Surat Tugas");
+
+  const lombaMeta = useMemo(() => LOMBA.find((x) => x.slug === reg?.lomba_slug), [reg?.lomba_slug]);
+  const isIndividu = lombaMeta?.type === "individu";
+
+  // Default JK mengikuti kategori (Putra→L, Putri→P)
+  useEffect(() => {
+    if (reg?.kategori === "Putra") setNewMember((m) => ({ ...m, jenis_kelamin: "L" }));
+    else if (reg?.kategori === "Putri") setNewMember((m) => ({ ...m, jenis_kelamin: "P" }));
+  }, [reg?.kategori]);
 
   const load = async () => {
     const { data: r } = await supabase.from("registrations").select("*").eq("id", id).single();
