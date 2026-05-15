@@ -27,13 +27,20 @@ function LoginPage() {
   const [user, setUser] = useState("");
   const [pwPan, setPwPan] = useState("");
   const [loading, setLoading] = useState(false);
+  const [statusMsg, setStatusMsg] = useState<string>("");
 
   const submitSchool = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^\d{8}$/.test(npsn)) { toast.error("NPSN harus 8 digit"); return; }
     setLoading(true);
+    setStatusMsg("Menghubungi server NPSN…");
+    // Status progresif supaya user tahu app belum hang
+    const t1 = setTimeout(() => setStatusMsg("Masih mencari data sekolah, mohon tunggu…"), 4000);
+    const t2 = setTimeout(() => setStatusMsg("Server lambat — mencoba endpoint cadangan…"), 10000);
+    const t3 = setTimeout(() => setStatusMsg("Mencoba ulang otomatis (cold-start server NPSN)…"), 18000);
     try {
       const r = await npsnLogin({ data: { npsn } });
+      setStatusMsg("Berhasil — masuk ke dashboard…");
       const { error } = await supabase.auth.signInWithPassword({ email: r.email, password: r.tempPassword });
       if (error) throw error;
       await refreshRoles();
@@ -41,7 +48,9 @@ function LoginPage() {
       nav({ to: "/dashboard" });
     } catch (err) {
       toast.error((err as Error).message);
+      setStatusMsg("");
     } finally {
+      clearTimeout(t1); clearTimeout(t2); clearTimeout(t3);
       setLoading(false);
     }
   };
@@ -85,6 +94,12 @@ function LoginPage() {
                       Cukup masukkan NPSN. Akun sekolah akan terbuat & diverifikasi otomatis ke Data Pokok Pendidikan.
                     </p>
                   </div>
+                  {loading && statusMsg && (
+                    <div className="rounded-md border border-primary/30 bg-primary/5 px-3 py-2 text-xs text-primary">
+                      <Loader2 className="mr-1 inline h-3 w-3 animate-spin" />
+                      {statusMsg}
+                    </div>
+                  )}
                   <Button type="submit" disabled={loading} className="w-full">
                     {loading && <Loader2 className="h-4 w-4 animate-spin" />} Masuk Sekolah
                   </Button>

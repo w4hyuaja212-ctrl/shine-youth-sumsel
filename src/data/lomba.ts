@@ -5,6 +5,10 @@ export type Lomba = {
   desc: string;
   rules: string[];
   icon: string;
+  /** "individu" = perorangan (pendamping + peserta). "tim" = ada anggota tim. */
+  type: "individu" | "tim";
+  /** true = perlu kategori Putra & Putri terpisah (1x klik daftarkan keduanya). */
+  genderSplit?: boolean;
 };
 
 export const LOMBA: Lomba[] = [
@@ -18,6 +22,8 @@ export const LOMBA: Lomba[] = [
       "Setiap sekolah MAKSIMAL 1 TIM per kategori",
     ],
     icon: "⚽",
+    type: "tim",
+    genderSplit: true,
   },
   {
     slug: "mobile-legends",
@@ -26,6 +32,7 @@ export const LOMBA: Lomba[] = [
     desc: "Turnamen MLBB Offline di Gedung A. Buktikan tim sekolahmu yang terkuat.",
     rules: ["Setiap sekolah MAKSIMAL 1 TIM", "Hadiah sampai Juara 4"],
     icon: "🎮",
+    type: "tim",
   },
   {
     slug: "bulu-tangkis",
@@ -37,6 +44,8 @@ export const LOMBA: Lomba[] = [
       "Setiap sekolah MAKSIMAL 1 PESERTA per kategori",
     ],
     icon: "🏸",
+    type: "individu",
+    genderSplit: true,
   },
   {
     slug: "ltbb",
@@ -45,6 +54,8 @@ export const LOMBA: Lomba[] = [
     desc: "Lomba membuat Menara Pantau Dauble Piramid di Gedung A tingkat penggalang.",
     rules: ["Kategori Putra & Putri", "Maksimal 1 regu Putra dan 1 regu Putri per sekolah"],
     icon: "🗼",
+    type: "tim",
+    genderSplit: true,
   },
   {
     slug: "pionering",
@@ -53,6 +64,8 @@ export const LOMBA: Lomba[] = [
     desc: "Lomba ketangkasan Pionering 27 gerakan (boleh ada yel-yel) di Gedung A.",
     rules: ["Kategori Putra & Putri", "Maksimal 1 regu Putra dan 1 regu Putri per sekolah"],
     icon: "🪢",
+    type: "tim",
+    genderSplit: true,
   },
   {
     slug: "tahfidz",
@@ -61,6 +74,7 @@ export const LOMBA: Lomba[] = [
     desc: "Hafalan Juz 30 di Gedung A. Penilaian: Tajwid, Makhraj, Kefashihan, Adab.",
     rules: ["Individu (Kuota Sekolah Bebas)", "Khusus Juz 30 (SMP/MTs/Pesantren)"],
     icon: "📖",
+    type: "individu",
   },
   {
     slug: "mtq",
@@ -69,6 +83,7 @@ export const LOMBA: Lomba[] = [
     desc: "Lomba membaca Al-Quran dengan bacaan mujawwad di Gedung A.",
     rules: ["Individu (Kuota Sekolah Bebas)", "Durasi 5–7 menit"],
     icon: "🕌",
+    type: "individu",
   },
   {
     slug: "ssc",
@@ -77,6 +92,7 @@ export const LOMBA: Lomba[] = [
     desc: "LCC: Matematika, IPA, dan Pengetahuan Umum di Gedung A.",
     rules: ["Maksimal 2 tim per sekolah", "Satu tim 3 orang"],
     icon: "🧠",
+    type: "tim",
   },
   {
     slug: "vocal-solo",
@@ -88,6 +104,7 @@ export const LOMBA: Lomba[] = [
       "Lagu Wajib (Pilih 1): Tanah Air, Indonesia Pusaka, Syukur, Ibu Pertiwi, Rayuan Pulau Kelapa",
     ],
     icon: "🎤",
+    type: "individu",
   },
   {
     slug: "pidato-inggris",
@@ -99,6 +116,7 @@ export const LOMBA: Lomba[] = [
       "Durasi 5–7 menit, tanpa teks (catatan poin diperbolehkan)",
     ],
     icon: "🎙️",
+    type: "individu",
   },
 ];
 
