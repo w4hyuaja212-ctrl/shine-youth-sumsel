@@ -217,7 +217,6 @@ function DetailPage() {
             )}
           </div>
         )}
-        )}
       </CardContent></Card>
 
       <Card><CardContent className="space-y-3 p-6">
