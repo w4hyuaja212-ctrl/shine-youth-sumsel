@@ -9,6 +9,8 @@ export type Lomba = {
   type: "individu" | "tim";
   /** true = perlu kategori Putra & Putri terpisah (1x klik daftarkan keduanya). */
   genderSplit?: boolean;
+  /** Batas maksimal peserta/anggota per pendaftaran. undefined = tidak dibatasi. */
+  maxMembers?: number;
 };
 
 export const LOMBA: Lomba[] = [
@@ -20,19 +22,22 @@ export const LOMBA: Lomba[] = [
     rules: [
       "Kategori Putra (Max 32 Tim) & Putri (Max 16 Tim)",
       "Setiap sekolah MAKSIMAL 1 TIM per kategori",
+      "Maksimal 10 pemain per tim",
     ],
     icon: "⚽",
     type: "tim",
     genderSplit: true,
+    maxMembers: 10,
   },
   {
     slug: "mobile-legends",
     category: "E-Sport",
     name: "Mobile Legends",
     desc: "Turnamen MLBB Offline di Gedung A. Buktikan tim sekolahmu yang terkuat.",
-    rules: ["Setiap sekolah MAKSIMAL 1 TIM", "Hadiah sampai Juara 4"],
+    rules: ["Setiap sekolah MAKSIMAL 1 TIM", "5 pemain inti + 1 cadangan", "Hadiah sampai Juara 4"],
     icon: "🎮",
     type: "tim",
+    maxMembers: 6,
   },
   {
     slug: "bulu-tangkis",
@@ -46,26 +51,29 @@ export const LOMBA: Lomba[] = [
     icon: "🏸",
     type: "individu",
     genderSplit: true,
+    maxMembers: 1,
   },
   {
     slug: "ltbb",
     category: "Kepanduan",
     name: "LTBB",
     desc: "Lomba membuat Menara Pantau Dauble Piramid di Gedung A tingkat penggalang.",
-    rules: ["Kategori Putra & Putri", "Maksimal 1 regu Putra dan 1 regu Putri per sekolah"],
+    rules: ["Kategori Putra & Putri", "Maksimal 1 regu Putra dan 1 regu Putri per sekolah", "10 orang per regu"],
     icon: "🗼",
     type: "tim",
     genderSplit: true,
+    maxMembers: 10,
   },
   {
     slug: "pionering",
     category: "Kepanduan",
     name: "Pionering",
     desc: "Lomba ketangkasan Pionering 27 gerakan (boleh ada yel-yel) di Gedung A.",
-    rules: ["Kategori Putra & Putri", "Maksimal 1 regu Putra dan 1 regu Putri per sekolah"],
+    rules: ["Kategori Putra & Putri", "Maksimal 1 regu Putra dan 1 regu Putri per sekolah", "10 orang per regu"],
     icon: "🪢",
     type: "tim",
     genderSplit: true,
+    maxMembers: 10,
   },
   {
     slug: "tahfidz",
@@ -93,6 +101,7 @@ export const LOMBA: Lomba[] = [
     rules: ["Maksimal 2 tim per sekolah", "Satu tim 3 orang"],
     icon: "🧠",
     type: "tim",
+    maxMembers: 3,
   },
   {
     slug: "vocal-solo",
@@ -105,6 +114,7 @@ export const LOMBA: Lomba[] = [
     ],
     icon: "🎤",
     type: "individu",
+    maxMembers: 2,
   },
   {
     slug: "pidato-inggris",

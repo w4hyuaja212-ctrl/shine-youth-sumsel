@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LOMBA } from "@/data/lomba";
 import { toast } from "sonner";
 import { StatusBadge } from "./dashboard.index";
-import { Trash2, Upload, Loader2, Save, Send, ImagePlus } from "lucide-react";
+import { Trash2, Upload, Loader2, Save, Send, ImagePlus, CheckCircle2, XCircle, RefreshCw, X } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/pendaftaran/$id")({
   head: () => ({ meta: [{ title: "Detail Pendaftaran — SOF SMAMSA" }] }),
@@ -34,12 +34,81 @@ function DetailPage() {
 
   const lombaMeta = useMemo(() => LOMBA.find((x) => x.slug === reg?.lomba_slug), [reg?.lomba_slug]);
   const isIndividu = lombaMeta?.type === "individu";
+  const maxMembers = lombaMeta?.maxMembers;
+  const quotaReached = typeof maxMembers === "number" && members.length >= maxMembers;
+
+  // Upload status for the new-member form
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  // Per-row state untuk retry & preview foto member yang sudah ada
+  const [rowUpload, setRowUpload] = useState<Record<string, "uploading" | "error" | "success">>({});
+  const [pendingPhotos, setPendingPhotos] = useState<Record<string, File>>({});
+  const [photoThumbs, setPhotoThumbs] = useState<Record<string, string>>({});
 
   // Default JK mengikuti kategori (Putra→L, Putri→P)
   useEffect(() => {
     if (reg?.kategori === "Putra") setNewMember((m) => ({ ...m, jenis_kelamin: "L" }));
     else if (reg?.kategori === "Putri") setNewMember((m) => ({ ...m, jenis_kelamin: "P" }));
   }, [reg?.kategori]);
+
+  // Preview foto baru (object URL)
+  const onSelectFoto = (f: File | null) => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setNewFoto(f);
+    setPhotoPreview(f ? URL.createObjectURL(f) : null);
+    setUploadStatus("idle");
+    setUploadError(null);
+  };
+  useEffect(() => () => { if (photoPreview) URL.revokeObjectURL(photoPreview); }, [photoPreview]);
+
+  // Generate signed URLs untuk thumbnail foto peserta yang sudah ada
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const next: Record<string, string> = {};
+      await Promise.all(members.map(async (m) => {
+        const foto = files.find((f) => f.jenis === `Foto Peserta - ${m.nama}`);
+        if (!foto) return;
+        const { data } = await supabase.storage.from("berkas").createSignedUrl(foto.file_path, 600);
+        if (data?.signedUrl) next[m.id] = data.signedUrl;
+      }));
+      if (!cancelled) setPhotoThumbs(next);
+    })();
+    return () => { cancelled = true; };
+  }, [members, files]);
+
+  // Helper upload foto untuk satu member
+  const uploadPhotoForMember = async (memberId: string, memberName: string, file: File) => {
+    if (!user) throw new Error("Tidak login");
+    setRowUpload((s) => ({ ...s, [memberId]: "uploading" }));
+    try {
+      const path = `${user.id}/${id}/peserta-${Date.now()}-${file.name}`;
+      const { error: upErr } = await supabase.storage.from("berkas").upload(path, file);
+      if (upErr) throw upErr;
+      const { error: insErr } = await supabase.from("registration_files").insert({
+        registration_id: id, jenis: `Foto Peserta - ${memberName}`,
+        file_path: path, file_name: file.name, size_bytes: file.size,
+      });
+      if (insErr) throw insErr;
+      setRowUpload((s) => ({ ...s, [memberId]: "success" }));
+      setPendingPhotos((p) => { const c = { ...p }; delete c[memberId]; return c; });
+      return true;
+    } catch (e) {
+      setRowUpload((s) => ({ ...s, [memberId]: "error" }));
+      setPendingPhotos((p) => ({ ...p, [memberId]: file }));
+      toast.error("Upload foto gagal: " + (e as Error).message);
+      return false;
+    }
+  };
+
+  const retryUpload = async (m: any) => {
+    const file = pendingPhotos[m.id];
+    if (!file) return;
+    const ok = await uploadPhotoForMember(m.id, m.nama, file);
+    if (ok) { toast.success("Foto berhasil diunggah"); load(); }
+  };
 
   const load = async () => {
     const { data: r } = await supabase.from("registrations").select("*").eq("id", id).single();
@@ -71,24 +140,32 @@ function DetailPage() {
   const addMember = async () => {
     if (!newMember.nama) return toast.error("Nama wajib diisi");
     if (!user) return;
+    if (quotaReached) return toast.error(`Kuota maksimal ${maxMembers} ${isIndividu ? "peserta" : "anggota"} sudah terpenuhi`);
     setAddingMember(true);
+    setUploadStatus("idle");
+    setUploadError(null);
     try {
       const peran = isIndividu ? "peserta" : newMember.peran;
-      const { error } = await supabase.from("registration_members")
-        .insert({ ...newMember, peran, registration_id: id });
+      const { data: inserted, error } = await supabase.from("registration_members")
+        .insert({ ...newMember, peran, registration_id: id })
+        .select().single();
       if (error) throw error;
-      // Upload foto peserta (opsional) → masuk ke registration_files dgn jenis spesifik
-      if (newFoto) {
-        const path = `${user.id}/${id}/peserta-${Date.now()}-${newFoto.name}`;
-        const { error: upErr } = await supabase.storage.from("berkas").upload(path, newFoto);
-        if (upErr) throw upErr;
-        await supabase.from("registration_files").insert({
-          registration_id: id, jenis: `Foto Peserta - ${newMember.nama}`,
-          file_path: path, file_name: newFoto.name, size_bytes: newFoto.size,
-        });
+
+      // Upload foto (opsional) — jika gagal, simpan ke pendingPhotos untuk retry
+      if (newFoto && inserted) {
+        setUploadStatus("uploading");
+        const ok = await uploadPhotoForMember(inserted.id, newMember.nama, newFoto);
+        if (ok) setUploadStatus("success");
+        else {
+          setUploadStatus("error");
+          setUploadError("Upload foto gagal — gunakan tombol Coba Ulang pada baris peserta.");
+        }
       }
+
       setNewMember({ nama: "", jenis_kelamin: reg?.kategori === "Putri" ? "P" : "L", nisn: "", kelas: "", peran: "anggota", no_wa: "" });
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
       setNewFoto(null);
+      setPhotoPreview(null);
       if (fotoRef.current) fotoRef.current.value = "";
       toast.success("Peserta ditambahkan");
       load();
@@ -161,7 +238,14 @@ function DetailPage() {
       </CardContent></Card>
 
       <Card><CardContent className="space-y-3 p-6">
-        <h2 className="font-semibold">{isIndividu ? "Peserta" : "Anggota Tim"} ({members.length})</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold">{isIndividu ? "Peserta" : "Anggota Tim"} ({members.length}{typeof maxMembers === "number" ? ` / ${maxMembers}` : ""})</h2>
+          {typeof maxMembers === "number" && (
+            <span className={`text-xs ${quotaReached ? "text-destructive font-semibold" : "text-muted-foreground"}`}>
+              {quotaReached ? "Kuota penuh" : `Sisa ${maxMembers - members.length}`}
+            </span>
+          )}
+        </div>
         {members.length > 0 && (
           <table className="w-full text-sm">
             <thead className="bg-muted text-left"><tr>
@@ -175,14 +259,49 @@ function DetailPage() {
             </tr></thead>
             <tbody>{members.map((m) => {
               const foto = files.find((f) => f.jenis === `Foto Peserta - ${m.nama}`);
+              const status = rowUpload[m.id];
+              const thumb = photoThumbs[m.id];
               return (
-                <tr key={m.id} className="border-t">
+                <tr key={m.id} className="border-t align-middle">
                   <td className="px-2 py-1">{m.nama}</td>
                   <td className="px-2 py-1">{m.jenis_kelamin}</td>
                   {!isIndividu && <td className="px-2 py-1">{m.nisn}</td>}
                   {!isIndividu && <td className="px-2 py-1">{m.kelas}</td>}
                   {!isIndividu && <td className="px-2 py-1">{m.peran}</td>}
-                  <td className="px-2 py-1">{foto ? <Button size="sm" variant="outline" onClick={() => downloadFile(foto.file_path)}>Lihat</Button> : <span className="text-xs text-muted-foreground">—</span>}</td>
+                  <td className="px-2 py-1">
+                    {status === "uploading" ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Mengunggah…</span>
+                    ) : foto ? (
+                      <div className="flex items-center gap-2">
+                        {thumb ? (
+                          <button type="button" onClick={() => downloadFile(foto.file_path)} title="Lihat foto">
+                            <img src={thumb} alt={m.nama} className="h-10 w-10 rounded object-cover border" />
+                          </button>
+                        ) : (
+                          <Button size="sm" variant="outline" onClick={() => downloadFile(foto.file_path)}>Lihat</Button>
+                        )}
+                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                      </div>
+                    ) : status === "error" && pendingPhotos[m.id] ? (
+                      <div className="flex items-center gap-2">
+                        <XCircle className="h-4 w-4 text-destructive" />
+                        <span className="text-xs text-destructive">Upload gagal</span>
+                        <Button size="sm" variant="outline" onClick={() => retryUpload(m)}>
+                          <RefreshCw className="h-3 w-3" /> Coba Ulang
+                        </Button>
+                      </div>
+                    ) : (
+                      <Label className="inline-flex cursor-pointer items-center gap-1 text-xs text-primary underline">
+                        <Upload className="h-3 w-3" /> Upload foto
+                        <input type="file" hidden accept="image/*" onChange={async (e) => {
+                          const f = e.target.files?.[0]; if (!f) return;
+                          const ok = await uploadPhotoForMember(m.id, m.nama, f);
+                          if (ok) load();
+                          e.target.value = "";
+                        }} />
+                      </Label>
+                    )}
+                  </td>
                   <td className="px-2 py-1"><Button size="icon" variant="ghost" disabled={isLocked} onClick={() => delMember(m.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
                 </tr>
               );
@@ -191,29 +310,49 @@ function DetailPage() {
         )}
         {!isLocked && (
           <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+            {quotaReached && (
+              <div className="rounded-md bg-destructive/10 px-3 py-2 text-xs text-destructive">
+                Kuota maksimal {maxMembers} {isIndividu ? "peserta" : "anggota"} sudah tercapai. Hapus salah satu untuk menambah baru.
+              </div>
+            )}
             <div className="grid gap-2 sm:grid-cols-6">
-              <Input placeholder="Nama Peserta" value={newMember.nama} onChange={(e) => setNewMember({ ...newMember, nama: e.target.value })} className="sm:col-span-2" />
-              <select className="rounded-md border bg-transparent px-2 text-sm" value={newMember.jenis_kelamin} onChange={(e) => setNewMember({ ...newMember, jenis_kelamin: e.target.value })}>
+              <Input placeholder="Nama Peserta" value={newMember.nama} disabled={quotaReached} onChange={(e) => setNewMember({ ...newMember, nama: e.target.value })} className="sm:col-span-2" />
+              <select disabled={quotaReached} className="rounded-md border bg-transparent px-2 text-sm disabled:opacity-50" value={newMember.jenis_kelamin} onChange={(e) => setNewMember({ ...newMember, jenis_kelamin: e.target.value })}>
                 <option value="L">Laki-laki</option><option value="P">Perempuan</option>
               </select>
-              {!isIndividu && <Input placeholder="NISN" value={newMember.nisn} onChange={(e) => setNewMember({ ...newMember, nisn: e.target.value })} />}
-              {!isIndividu && <Input placeholder="Kelas" value={newMember.kelas} onChange={(e) => setNewMember({ ...newMember, kelas: e.target.value })} />}
+              {!isIndividu && <Input placeholder="NISN" disabled={quotaReached} value={newMember.nisn} onChange={(e) => setNewMember({ ...newMember, nisn: e.target.value })} />}
+              {!isIndividu && <Input placeholder="Kelas" disabled={quotaReached} value={newMember.kelas} onChange={(e) => setNewMember({ ...newMember, kelas: e.target.value })} />}
               {!isIndividu && (
-                <select className="rounded-md border bg-transparent px-2 text-sm" value={newMember.peran} onChange={(e) => setNewMember({ ...newMember, peran: e.target.value })}>
+                <select disabled={quotaReached} className="rounded-md border bg-transparent px-2 text-sm disabled:opacity-50" value={newMember.peran} onChange={(e) => setNewMember({ ...newMember, peran: e.target.value })}>
                   <option value="kapten">kapten</option><option value="anggota">anggota</option>
                 </select>
               )}
-              <Label className="flex cursor-pointer items-center justify-center gap-2 rounded-md border bg-background px-3 py-2 text-xs sm:col-span-2">
+              <Label className={`flex cursor-pointer items-center justify-center gap-2 rounded-md border bg-background px-3 py-2 text-xs sm:col-span-2 ${quotaReached ? "opacity-50 pointer-events-none" : ""}`}>
                 <ImagePlus className="h-4 w-4" />
                 {newFoto ? newFoto.name.slice(0, 18) : "Pilih Foto Peserta"}
-                <input ref={fotoRef} type="file" hidden accept="image/*" onChange={(e) => setNewFoto(e.target.files?.[0] ?? null)} />
+                <input ref={fotoRef} type="file" hidden accept="image/*" onChange={(e) => onSelectFoto(e.target.files?.[0] ?? null)} />
               </Label>
             </div>
-            <Button onClick={addMember} disabled={addingMember} className="w-full">
+            {photoPreview && (
+              <div className="flex items-center gap-3 rounded-md border bg-background p-2">
+                <img src={photoPreview} alt="preview" className="h-16 w-16 rounded object-cover border" />
+                <div className="flex-1 text-xs">
+                  <div className="font-medium">{newFoto?.name}</div>
+                  <div className="text-muted-foreground">{newFoto ? (newFoto.size / 1024).toFixed(0) + " KB" : ""}</div>
+                  {uploadStatus === "uploading" && <div className="mt-1 inline-flex items-center gap-1 text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" /> Mengunggah…</div>}
+                  {uploadStatus === "success" && <div className="mt-1 inline-flex items-center gap-1 text-green-600"><CheckCircle2 className="h-3 w-3" /> Berhasil</div>}
+                  {uploadStatus === "error" && <div className="mt-1 inline-flex items-center gap-1 text-destructive"><XCircle className="h-3 w-3" /> {uploadError ?? "Gagal"}</div>}
+                </div>
+                <Button size="icon" variant="ghost" onClick={() => onSelectFoto(null)}><X className="h-4 w-4" /></Button>
+              </div>
+            )}
+            <Button onClick={addMember} disabled={addingMember || quotaReached} className="w-full">
               {addingMember ? <Loader2 className="h-4 w-4 animate-spin" /> : "+"} Tambah {isIndividu ? "Peserta" : "Anggota"}
             </Button>
-            {isIndividu && (
-              <p className="text-xs text-muted-foreground">Bisa menambahkan lebih dari satu peserta — kuota mengikuti aturan cabang.</p>
+            {isIndividu && !quotaReached && (
+              <p className="text-xs text-muted-foreground">
+                {typeof maxMembers === "number" ? `Maksimal ${maxMembers} peserta per pendaftaran.` : "Kuota peserta bebas — sesuai aturan cabang."}
+              </p>
             )}
           </div>
         )}
