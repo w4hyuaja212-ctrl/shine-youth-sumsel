@@ -33,6 +33,13 @@ function Overview() {
         verified: list.filter((r) => r.status === "verified").length,
         rejected: list.filter((r) => r.status === "rejected").length,
       });
+      const { data: act } = await supabase
+        .from("registration_member_activity")
+        .select("*, registrations(lomba_name, kategori)")
+        .eq("school_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(15);
+      setActivity(act ?? []);
     })();
   }, [user]);
 
