@@ -190,6 +190,47 @@ export type Database = {
           },
         ]
       }
+      registration_member_activity: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          member_name: string
+          member_role: string | null
+          registration_id: string
+          school_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          member_name: string
+          member_role?: string | null
+          registration_id: string
+          school_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          member_name?: string
+          member_role?: string | null
+          registration_id?: string
+          school_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_member_activity_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "registrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       registration_members: {
         Row: {
           created_at: string
@@ -200,6 +241,8 @@ export type Database = {
           nisn: string | null
           no_wa: string | null
           peran: string | null
+          photo_error: string | null
+          photo_status: string
           registration_id: string
         }
         Insert: {
@@ -211,6 +254,8 @@ export type Database = {
           nisn?: string | null
           no_wa?: string | null
           peran?: string | null
+          photo_error?: string | null
+          photo_status?: string
           registration_id: string
         }
         Update: {
@@ -222,6 +267,8 @@ export type Database = {
           nisn?: string | null
           no_wa?: string | null
           peran?: string | null
+          photo_error?: string | null
+          photo_status?: string
           registration_id?: string
         }
         Relationships: [

@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { FileText, CheckCircle2, Clock, XCircle, UserPlus, UserMinus } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/")({
   head: () => ({ meta: [{ title: "Dashboard Sekolah — SOF SMAMSA" }] }),
@@ -16,6 +16,7 @@ function Overview() {
   const [stats, setStats] = useState({ total: 0, draft: 0, submitted: 0, verified: 0, rejected: 0 });
   const [profile, setProfile] = useState<{ nama_sekolah?: string | null; npsn?: string | null } | null>(null);
   const [recent, setRecent] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
@@ -32,6 +33,13 @@ function Overview() {
         verified: list.filter((r) => r.status === "verified").length,
         rejected: list.filter((r) => r.status === "rejected").length,
       });
+      const { data: act } = await supabase
+        .from("registration_member_activity")
+        .select("*, registrations(lomba_name, kategori)")
+        .eq("school_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(15);
+      setActivity(act ?? []);
     })();
   }, [user]);
 
@@ -77,6 +85,43 @@ function Overview() {
                   <StatusBadge status={r.status} />
                 </li>
               ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="mb-3 font-semibold">Histori Anggota</h2>
+          {activity.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              Belum ada aktivitas penambahan/penghapusan anggota.
+            </div>
+          ) : (
+            <ul className="divide-y">
+              {activity.map((a) => {
+                const added = a.action === "added";
+                const Icon = added ? UserPlus : UserMinus;
+                const reg = a.registrations;
+                return (
+                  <li key={a.id} className="flex items-start gap-3 py-3 text-sm">
+                    <Icon className={`mt-0.5 h-4 w-4 ${added ? "text-emerald-600" : "text-destructive"}`} />
+                    <div className="flex-1">
+                      <div>
+                        <span className="font-medium">{a.member_name}</span>{" "}
+                        <span className="text-muted-foreground">
+                          {added ? "ditambahkan" : "dihapus"}
+                          {a.member_role ? ` (${a.member_role})` : ""}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {reg?.lomba_name ?? "—"}{reg?.kategori ? ` • ${reg.kategori}` : ""} •{" "}
+                        {new Date(a.created_at).toLocaleString("id-ID")}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </CardContent>
