@@ -34,12 +34,18 @@ function DetailPage() {
 
   const lombaMeta = useMemo(() => LOMBA.find((x) => x.slug === reg?.lomba_slug), [reg?.lomba_slug]);
   const isIndividu = lombaMeta?.type === "individu";
+  const maxMembers = lombaMeta?.maxMembers;
+  const quotaReached = typeof maxMembers === "number" && members.length >= maxMembers;
 
-  // Default JK mengikuti kategori (Putra→L, Putri→P)
-  useEffect(() => {
-    if (reg?.kategori === "Putra") setNewMember((m) => ({ ...m, jenis_kelamin: "L" }));
-    else if (reg?.kategori === "Putri") setNewMember((m) => ({ ...m, jenis_kelamin: "P" }));
-  }, [reg?.kategori]);
+  // Upload status for the new-member form
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "success" | "error">("idle");
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  // Per-row state untuk retry & preview foto member yang sudah ada
+  const [rowUpload, setRowUpload] = useState<Record<string, "uploading" | "error" | "success">>({});
+  const [pendingPhotos, setPendingPhotos] = useState<Record<string, File>>({});
+  const [photoThumbs, setPhotoThumbs] = useState<Record<string, string>>({});
 
   const load = async () => {
     const { data: r } = await supabase.from("registrations").select("*").eq("id", id).single();
