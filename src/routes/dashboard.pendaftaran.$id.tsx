@@ -263,8 +263,10 @@ function DetailPage() {
             </tr></thead>
             <tbody>{members.map((m) => {
               const foto = files.find((f) => f.jenis === `Foto Peserta - ${m.nama}`);
-              const status = rowUpload[m.id];
+              // Status efektif: live state > persisted DB state
+              const status = rowUpload[m.id] ?? (m.photo_status && m.photo_status !== "idle" ? m.photo_status : undefined);
               const thumb = photoThumbs[m.id];
+              const hasPending = !!pendingPhotos[m.id];
               return (
                 <tr key={m.id} className="border-t align-middle">
                   <td className="px-2 py-1">{m.nama}</td>
@@ -286,13 +288,27 @@ function DetailPage() {
                         )}
                         <CheckCircle2 className="h-4 w-4 text-green-600" />
                       </div>
-                    ) : status === "error" && pendingPhotos[m.id] ? (
-                      <div className="flex items-center gap-2">
+                    ) : status === "error" ? (
+                      <div className="flex flex-wrap items-center gap-2">
                         <XCircle className="h-4 w-4 text-destructive" />
-                        <span className="text-xs text-destructive">Upload gagal</span>
-                        <Button size="sm" variant="outline" onClick={() => retryUpload(m)}>
-                          <RefreshCw className="h-3 w-3" /> Coba Ulang
-                        </Button>
+                        <span className="text-xs text-destructive" title={m.photo_error ?? ""}>
+                          Upload gagal{m.photo_error ? `: ${m.photo_error.slice(0, 40)}` : ""}
+                        </span>
+                        {hasPending ? (
+                          <Button size="sm" variant="outline" onClick={() => retryUpload(m)}>
+                            <RefreshCw className="h-3 w-3" /> Coba Ulang
+                          </Button>
+                        ) : (
+                          <Label className="inline-flex cursor-pointer items-center gap-1 text-xs text-primary underline">
+                            <Upload className="h-3 w-3" /> Pilih ulang foto
+                            <input type="file" hidden accept="image/*" onChange={async (e) => {
+                              const f = e.target.files?.[0]; if (!f) return;
+                              const ok = await uploadPhotoForMember(m.id, m.nama, f);
+                              if (ok) load();
+                              e.target.value = "";
+                            }} />
+                          </Label>
+                        )}
                       </div>
                     ) : (
                       <Label className="inline-flex cursor-pointer items-center gap-1 text-xs text-primary underline">
