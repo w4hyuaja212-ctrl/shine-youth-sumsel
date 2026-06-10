@@ -16,6 +16,7 @@ function Overview() {
   const [stats, setStats] = useState({ total: 0, draft: 0, submitted: 0, verified: 0, rejected: 0 });
   const [profile, setProfile] = useState<{ nama_sekolah?: string | null; npsn?: string | null } | null>(null);
   const [recent, setRecent] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
 
   useEffect(() => {
     if (!user) return;
