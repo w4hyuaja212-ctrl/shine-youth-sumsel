@@ -79,10 +79,11 @@ function DetailPage() {
     return () => { cancelled = true; };
   }, [members, files]);
 
-  // Helper upload foto untuk satu member
+  // Helper upload foto untuk satu member — status dipersist ke DB
   const uploadPhotoForMember = async (memberId: string, memberName: string, file: File) => {
     if (!user) throw new Error("Tidak login");
     setRowUpload((s) => ({ ...s, [memberId]: "uploading" }));
+    await supabase.from("registration_members").update({ photo_status: "uploading", photo_error: null }).eq("id", memberId);
     try {
       const path = `${user.id}/${id}/peserta-${Date.now()}-${file.name}`;
       const { error: upErr } = await supabase.storage.from("berkas").upload(path, file);
@@ -92,20 +93,23 @@ function DetailPage() {
         file_path: path, file_name: file.name, size_bytes: file.size,
       });
       if (insErr) throw insErr;
+      await supabase.from("registration_members").update({ photo_status: "success", photo_error: null }).eq("id", memberId);
       setRowUpload((s) => ({ ...s, [memberId]: "success" }));
       setPendingPhotos((p) => { const c = { ...p }; delete c[memberId]; return c; });
       return true;
     } catch (e) {
+      const msg = (e as Error).message;
+      await supabase.from("registration_members").update({ photo_status: "error", photo_error: msg }).eq("id", memberId);
       setRowUpload((s) => ({ ...s, [memberId]: "error" }));
       setPendingPhotos((p) => ({ ...p, [memberId]: file }));
-      toast.error("Upload foto gagal: " + (e as Error).message);
+      toast.error("Upload foto gagal: " + msg);
       return false;
     }
   };
 
   const retryUpload = async (m: any) => {
     const file = pendingPhotos[m.id];
-    if (!file) return;
+    if (!file) { toast.error("Foto tidak tersedia setelah refresh — silakan pilih ulang foto pada peserta ini"); return; }
     const ok = await uploadPhotoForMember(m.id, m.nama, file);
     if (ok) { toast.success("Foto berhasil diunggah"); load(); }
   };
