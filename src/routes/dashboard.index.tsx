@@ -89,6 +89,43 @@ function Overview() {
           )}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent className="p-6">
+          <h2 className="mb-3 font-semibold">Histori Anggota</h2>
+          {activity.length === 0 ? (
+            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+              Belum ada aktivitas penambahan/penghapusan anggota.
+            </div>
+          ) : (
+            <ul className="divide-y">
+              {activity.map((a) => {
+                const added = a.action === "added";
+                const Icon = added ? UserPlus : UserMinus;
+                const reg = a.registrations;
+                return (
+                  <li key={a.id} className="flex items-start gap-3 py-3 text-sm">
+                    <Icon className={`mt-0.5 h-4 w-4 ${added ? "text-emerald-600" : "text-destructive"}`} />
+                    <div className="flex-1">
+                      <div>
+                        <span className="font-medium">{a.member_name}</span>{" "}
+                        <span className="text-muted-foreground">
+                          {added ? "ditambahkan" : "dihapus"}
+                          {a.member_role ? ` (${a.member_role})` : ""}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {reg?.lomba_name ?? "—"}{reg?.kategori ? ` • ${reg.kategori}` : ""} •{" "}
+                        {new Date(a.created_at).toLocaleString("id-ID")}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
