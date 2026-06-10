@@ -4,7 +4,7 @@ import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/integrations/supabase/client";
-import { FileText, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { FileText, CheckCircle2, Clock, XCircle, UserPlus, UserMinus } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/")({
   head: () => ({ meta: [{ title: "Dashboard Sekolah — SOF SMAMSA" }] }),
