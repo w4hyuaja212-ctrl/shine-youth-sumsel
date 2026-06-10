@@ -47,6 +47,69 @@ function DetailPage() {
   const [pendingPhotos, setPendingPhotos] = useState<Record<string, File>>({});
   const [photoThumbs, setPhotoThumbs] = useState<Record<string, string>>({});
 
+  // Default JK mengikuti kategori (Putra→L, Putri→P)
+  useEffect(() => {
+    if (reg?.kategori === "Putra") setNewMember((m) => ({ ...m, jenis_kelamin: "L" }));
+    else if (reg?.kategori === "Putri") setNewMember((m) => ({ ...m, jenis_kelamin: "P" }));
+  }, [reg?.kategori]);
+
+  // Preview foto baru (object URL)
+  const onSelectFoto = (f: File | null) => {
+    if (photoPreview) URL.revokeObjectURL(photoPreview);
+    setNewFoto(f);
+    setPhotoPreview(f ? URL.createObjectURL(f) : null);
+    setUploadStatus("idle");
+    setUploadError(null);
+  };
+  useEffect(() => () => { if (photoPreview) URL.revokeObjectURL(photoPreview); }, [photoPreview]);
+
+  // Generate signed URLs untuk thumbnail foto peserta yang sudah ada
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const next: Record<string, string> = {};
+      await Promise.all(members.map(async (m) => {
+        const foto = files.find((f) => f.jenis === `Foto Peserta - ${m.nama}`);
+        if (!foto) return;
+        const { data } = await supabase.storage.from("berkas").createSignedUrl(foto.file_path, 600);
+        if (data?.signedUrl) next[m.id] = data.signedUrl;
+      }));
+      if (!cancelled) setPhotoThumbs(next);
+    })();
+    return () => { cancelled = true; };
+  }, [members, files]);
+
+  // Helper upload foto untuk satu member
+  const uploadPhotoForMember = async (memberId: string, memberName: string, file: File) => {
+    if (!user) throw new Error("Tidak login");
+    setRowUpload((s) => ({ ...s, [memberId]: "uploading" }));
+    try {
+      const path = `${user.id}/${id}/peserta-${Date.now()}-${file.name}`;
+      const { error: upErr } = await supabase.storage.from("berkas").upload(path, file);
+      if (upErr) throw upErr;
+      const { error: insErr } = await supabase.from("registration_files").insert({
+        registration_id: id, jenis: `Foto Peserta - ${memberName}`,
+        file_path: path, file_name: file.name, size_bytes: file.size,
+      });
+      if (insErr) throw insErr;
+      setRowUpload((s) => ({ ...s, [memberId]: "success" }));
+      setPendingPhotos((p) => { const c = { ...p }; delete c[memberId]; return c; });
+      return true;
+    } catch (e) {
+      setRowUpload((s) => ({ ...s, [memberId]: "error" }));
+      setPendingPhotos((p) => ({ ...p, [memberId]: file }));
+      toast.error("Upload foto gagal: " + (e as Error).message);
+      return false;
+    }
+  };
+
+  const retryUpload = async (m: any) => {
+    const file = pendingPhotos[m.id];
+    if (!file) return;
+    const ok = await uploadPhotoForMember(m.id, m.nama, file);
+    if (ok) { toast.success("Foto berhasil diunggah"); load(); }
+  };
+
   const load = async () => {
     const { data: r } = await supabase.from("registrations").select("*").eq("id", id).single();
     setReg(r);
