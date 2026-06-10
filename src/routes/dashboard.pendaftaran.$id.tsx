@@ -140,24 +140,32 @@ function DetailPage() {
   const addMember = async () => {
     if (!newMember.nama) return toast.error("Nama wajib diisi");
     if (!user) return;
+    if (quotaReached) return toast.error(`Kuota maksimal ${maxMembers} ${isIndividu ? "peserta" : "anggota"} sudah terpenuhi`);
     setAddingMember(true);
+    setUploadStatus("idle");
+    setUploadError(null);
     try {
       const peran = isIndividu ? "peserta" : newMember.peran;
-      const { error } = await supabase.from("registration_members")
-        .insert({ ...newMember, peran, registration_id: id });
+      const { data: inserted, error } = await supabase.from("registration_members")
+        .insert({ ...newMember, peran, registration_id: id })
+        .select().single();
       if (error) throw error;
-      // Upload foto peserta (opsional) → masuk ke registration_files dgn jenis spesifik
-      if (newFoto) {
-        const path = `${user.id}/${id}/peserta-${Date.now()}-${newFoto.name}`;
-        const { error: upErr } = await supabase.storage.from("berkas").upload(path, newFoto);
-        if (upErr) throw upErr;
-        await supabase.from("registration_files").insert({
-          registration_id: id, jenis: `Foto Peserta - ${newMember.nama}`,
-          file_path: path, file_name: newFoto.name, size_bytes: newFoto.size,
-        });
+
+      // Upload foto (opsional) — jika gagal, simpan ke pendingPhotos untuk retry
+      if (newFoto && inserted) {
+        setUploadStatus("uploading");
+        const ok = await uploadPhotoForMember(inserted.id, newMember.nama, newFoto);
+        if (ok) setUploadStatus("success");
+        else {
+          setUploadStatus("error");
+          setUploadError("Upload foto gagal — gunakan tombol Coba Ulang pada baris peserta.");
+        }
       }
+
       setNewMember({ nama: "", jenis_kelamin: reg?.kategori === "Putri" ? "P" : "L", nisn: "", kelas: "", peran: "anggota", no_wa: "" });
+      if (photoPreview) URL.revokeObjectURL(photoPreview);
       setNewFoto(null);
+      setPhotoPreview(null);
       if (fotoRef.current) fotoRef.current.value = "";
       toast.success("Peserta ditambahkan");
       load();
