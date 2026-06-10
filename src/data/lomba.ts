@@ -9,6 +9,8 @@ export type Lomba = {
   type: "individu" | "tim";
   /** true = perlu kategori Putra & Putri terpisah (1x klik daftarkan keduanya). */
   genderSplit?: boolean;
+  /** Batas maksimal peserta/anggota per pendaftaran. undefined = tidak dibatasi. */
+  maxMembers?: number;
 };
 
 export const LOMBA: Lomba[] = [
